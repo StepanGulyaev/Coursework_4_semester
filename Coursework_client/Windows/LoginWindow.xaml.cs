@@ -15,7 +15,7 @@ namespace Coursework_client
     public partial class LoginWindow : Window
         {
         #region fields
-        public bool IsDarkTheme { get; set; }
+        //public bool IsDarkTheme { get; set; }
         private readonly PaletteHelper paletteHelper = new PaletteHelper();
         #endregion
 
@@ -27,7 +27,7 @@ namespace Coursework_client
             var pwd = inputPassword.Password;
             if (string.IsNullOrEmpty(uname) || string.IsNullOrEmpty(pwd))
                 {
-                MessageBox.Show("Заполните все поля!", "Ошибка");
+                MessageBox.Show("Заполните все поля!");
                 return;
                 }
 
@@ -39,27 +39,11 @@ namespace Coursework_client
                 }
             else
                 {
-                MessageBox.Show("Введены неправильные логин или пароль!", "Ошибка");
+                MessageBox.Show("Неправильный логин или пароль!");
                 }
             }
 
         #region utils
-        private void toggleTheme(object sender, RoutedEventArgs e)
-            {
-            var theme = paletteHelper.GetTheme();
-
-            if (IsDarkTheme)
-                {
-                IsDarkTheme = false;
-                theme.SetBaseTheme(Theme.Dark);
-                }
-            else
-                {
-                IsDarkTheme = true;
-                theme.SetBaseTheme(Theme.Dark);
-                }
-            paletteHelper.SetTheme(theme);
-            }
 
         private void exitApp(object sender, RoutedEventArgs e)
             => Application.Current.Shutdown();

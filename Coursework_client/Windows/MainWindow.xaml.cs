@@ -38,7 +38,6 @@ namespace Coursework_client
             InitializeComponent();
 
             worker = new User(login, password);
-            usernameText.Text = login.ToUpper();
             SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, ScrollBarVisibility.Disabled);
 
             if (login.ToLower() == "user")
@@ -104,12 +103,12 @@ namespace Coursework_client
                     var selectedItems = DataGrid_pln_mdl.SelectedItems;
                     if (selectedItems.Count > 1)
                         {
-                        responseText_st.Text = "Невозможно редактировать более 1 строки.";
+                        responseText_pln_md.Text = "Невозможно редактировать более 1 строки.";
                         break;
                         }
                     if (selectedItems.Count == 0)
                         {
-                        responseText_st.Text = "Выберите строку для редактирования.";
+                        responseText_pln_md.Text = "Выберите строку для редактирования.";
                         break;
                         }
                     var index = Convert.ToString((selectedItems[0] as DataRowView)[0]);
@@ -120,12 +119,12 @@ namespace Coursework_client
                     selectedItems = DataGrid_pln.SelectedItems;
                     if (selectedItems.Count > 1)
                         {
-                        responseText_gr.Text = "Невозможно редактировать более 1 строки.";
+                        responseText_pln.Text = "Невозможно редактировать более 1 строки.";
                         break;
                         }
                     if (selectedItems.Count == 0)
                         {
-                        responseText_gr.Text = "Выберите строку для редактирования.";
+                        responseText_pln.Text = "Выберите строку для редактирования.";
                         break;
                         }
                     index = Convert.ToString((selectedItems[0] as DataRowView)[0]);
@@ -136,12 +135,12 @@ namespace Coursework_client
                     selectedItems = DataGrid_fl.SelectedItems;
                     if (selectedItems.Count > 1)
                         {
-                        responseText_mr.Text = "Невозможно редактировать более 1 строки.";
+                        responseText_fl.Text = "Невозможно редактировать более 1 строки.";
                         break;
                         }
                     if (selectedItems.Count == 0)
                         {
-                        responseText_mr.Text = "Выберите строку для редактирования.";
+                        responseText_fl.Text = "Выберите строку для редактирования.";
                         break;
                         }
                     index = Convert.ToString((selectedItems[0] as DataRowView)[0]);
@@ -152,12 +151,12 @@ namespace Coursework_client
                     selectedItems = DataGrid_tck.SelectedItems;
                     if (selectedItems.Count > 1)
                         {
-                        responseText_sj.Text = "Невозможно редактировать более 1 строки.";
+                        responseText_tck.Text = "Невозможно редактировать более 1 строки.";
                         break;
                         }
                     if (selectedItems.Count == 0)
                         {
-                        responseText_sj.Text = "Выберите строку для редактирования.";
+                        responseText_tck.Text = "Выберите строку для редактирования.";
                         break;
                         }
                     index = Convert.ToString((selectedItems[0] as DataRowView)[0]);
@@ -168,12 +167,12 @@ namespace Coursework_client
                     selectedItems = DataGrid_pers.SelectedItems;
                     if (selectedItems.Count > 1)
                         {
-                        responseText_dp.Text = "Невозможно редактировать более 1 строки.";
+                        responseText_pers.Text = "Невозможно редактировать более 1 строки.";
                         break;
                         }
                     if (selectedItems.Count == 0)
                         {
-                        responseText_dp.Text = "Выберите строку для редактирования.";
+                        responseText_pers.Text = "Выберите строку для редактирования.";
                         break;
                         }
                     index = Convert.ToString((selectedItems[0] as DataRowView)[0]);
@@ -182,16 +181,6 @@ namespace Coursework_client
                     break;
                 case "btn_upd_ft":
                     selectedItems = DataGrid_full_ticket_view.SelectedItems;
-                    if (selectedItems.Count > 1)
-                        {
-                        responseText_mv.Text = "Невозможно редактировать более 1 строки.";
-                        break;
-                        }
-                    if (selectedItems.Count == 0)
-                        {
-                        responseText_mv.Text = "Выберите строку для редактирования.";
-                        break;
-                        }
                     index = Convert.ToString((selectedItems[0] as DataRowView)[0]);
                     mw = new UpdWindow(Tables.full_ticket_view, worker, index);
                     mw.Show();
@@ -208,7 +197,7 @@ namespace Coursework_client
                     var selectedItems = DataGrid_pln_mdl.SelectedItems;
                     if (selectedItems.Count == 0)
                         {
-                        responseText_st.Text = "Выберите строки для удаления.";
+                        responseText_pln_md.Text = "Выберите строки для удаления.";
                         break;
                         }
                     if (!confirmDelete()) break;
@@ -222,7 +211,7 @@ namespace Coursework_client
                             }
                         catch (Npgsql.PostgresException exception)
                             {
-                            responseText_st.Text = exception.Message;
+                            responseText_pln_md.Text = exception.Message;
                             break;
                             }
                         }
@@ -232,7 +221,7 @@ namespace Coursework_client
                     selectedItems = DataGrid_pln.SelectedItems;
                     if (selectedItems.Count == 0)
                         {
-                        responseText_gr.Text = "Выберите строки для удаления.";
+                        responseText_pln.Text = "Выберите строки для удаления.";
                         break;
                         }
                     if (!confirmDelete()) break;
@@ -246,7 +235,7 @@ namespace Coursework_client
                             }
                         catch (Npgsql.PostgresException exception)
                             {
-                            responseText_gr.Text = exception.Message;
+                            responseText_pln.Text = exception.Message;
                             break;
                             }
                         }
@@ -256,7 +245,7 @@ namespace Coursework_client
                     selectedItems = DataGrid_fl.SelectedItems;
                     if (selectedItems.Count == 0)
                         {
-                        responseText_mr.Text = "Выберите строки для удаления.";
+                        responseText_fl.Text = "Выберите строки для удаления.";
                         break;
                         }
                     if (!confirmDelete()) break;
@@ -270,7 +259,7 @@ namespace Coursework_client
                             }
                         catch (Npgsql.PostgresException exception)
                             {
-                            responseText_mr.Text = exception.Message;
+                            responseText_fl.Text = exception.Message;
                             break;
                             }
                         }
@@ -280,7 +269,7 @@ namespace Coursework_client
                     selectedItems = DataGrid_tck.SelectedItems;
                     if (selectedItems.Count == 0)
                         {
-                        responseText_sj.Text = "Выберите строки для удаления.";
+                        responseText_tck.Text = "Выберите строки для удаления.";
                         break;
                         }
                     if (!confirmDelete()) break;
@@ -294,7 +283,7 @@ namespace Coursework_client
                             }
                         catch (Npgsql.PostgresException exception)
                             {
-                            responseText_sj.Text = exception.Message;
+                            responseText_tck.Text = exception.Message;
                             break;
                             }
                         }
@@ -304,7 +293,7 @@ namespace Coursework_client
                     selectedItems = DataGrid_pers.SelectedItems;
                     if (selectedItems.Count == 0)
                         {
-                        responseText_dp.Text = "Выберите строки для удаления.";
+                        responseText_pers.Text = "Выберите строки для удаления.";
                         break;
                         }
                     if (!confirmDelete()) break;
@@ -318,7 +307,7 @@ namespace Coursework_client
                             }
                         catch (Npgsql.PostgresException exception)
                             {
-                            responseText_dp.Text = exception.Message;
+                            responseText_pers.Text = exception.Message;
                             break;
                             }
                         }
@@ -333,37 +322,47 @@ namespace Coursework_client
                 {
                 case 0:
                     var dataset = worker.Query(
-                        "SELECT marks.id AS mark_id, " +
-                        "s.surname, " +
-                        "s.name, " +
-                        "s.middle_name, " +
-                        "sj.title AS subject, " +
+                        "SELECT *, " +
                         "CASE " +
-                            "WHEN mark = 5 THEN 'Отлично' " +
-                            "WHEN mark = 4 THEN 'Хорошо' " +
-                            "WHEN mark = 3 THEN 'Удовлетворительно' " +
-                            "WHEN mark = 2 THEN 'Пересдача' END AS mark " +
-                        "FROM marks " +
-                            "JOIN students s ON marks.student_id = s.id " +
-                            "JOIN subjects sj ON marks.subject_id = sj.id " +
-                        "ORDER BY surname;");
+                            "WHEN seat LIKE '%A' THEN 'A'" +
+                            "WHEN seat LIKE '%B'  THEN 'B'" +
+                            "WHEN seat LIKE '%C'  THEN 'C'" +
+                            "WHEN seat LIKE '%D'  THEN 'D'" +
+                            "WHEN seat LIKE '%E'  THEN 'E'" +
+                        "ELSE 'No info'" +
+                        "END " +
+                        "FROM person NATURAL INNER JOIN ticket;");
                     if (dataset != null)
                         DataGrid_tasks.ItemsSource = dataset.Tables[0].DefaultView;
                     break;
                 case 1:
-                    MessageBox.Show("Выполнение задания 3b - во вкладке MVIEW", "Внимание");
+                    var order = order_box.Text;
+                    try
+                        {
+                        dataset = worker.Query($"SELECT * FROM ticket.full_ticket_view WHERE seat LIKE '%A' ORDER BY {order}");
+                        }
+                    catch (Npgsql.PostgresException exception)
+                        {
+                        responseText_pers.Text = exception.Message;
+                        break;
+                        }
+                    if (dataset != null)
+                        DataGrid_tasks.ItemsSource = dataset.Tables[0].DefaultView;
                     break;
                 case 2:
                     dataset = worker.Query(
-                        "SELECT (SELECT surname FROM students WHERE surname = 'Иванов' LIMIT 1);"
+                        "SELECT passport_id,last_name,first_name,father_name," +
+                        "(SELECT seat FROM ticket WHERE seat LIKE '%B') FROM " +
+                        "(SELECT * FROM ticket NATURAL INNER JOIN person) AS full_ticket_table WHERE " +
+                        "passport_id = (SELECT passport_id FROM person WHERE passport_id = '12 34 567890');" 
                     );
                     if (dataset != null)
                         DataGrid_tasks.ItemsSource = dataset.Tables[0].DefaultView;
                     break;
                 case 3:
                     dataset = worker.Query(
-                        "SELECT * FROM (SELECT surname, name, group_id FROM students) AS m " +
-                        "WHERE m.group_id = 3; ");
+                        "(SELECT owner, SUM(price_$) FROM ticket NATURAL INNER JOIN plane " +
+                        "WHERE plane_registration_number = registration_number GROUP BY owner HAVING count_company_profit(owner) > 300);");
                     if (dataset != null)
                         DataGrid_tasks.ItemsSource = dataset.Tables[0].DefaultView;
                     break;
@@ -437,32 +436,32 @@ namespace Coursework_client
             var name = ((Button)sender).Name;
             switch (name)
                 {
-                case "btn_rel_st":
+                case "btn_rel_pln_md":
                     var dataset = worker.Query("SELECT * FROM plane_model ORDER BY icao_code;");
                     if (dataset != null)
                         DataGrid_pln_mdl.ItemsSource = dataset.Tables[0].DefaultView;
                     break;
-                case "btn_rel_gr":
+                case "btn_rel_pln":
                     dataset = worker.Query("SELECT * FROM plane ORDER BY registration_number;");
                     if (dataset != null)
                         DataGrid_pln.ItemsSource = dataset.Tables[0].DefaultView;
                     break;
-                case "btn_rel_mr":
+                case "btn_rel_fl":
                     dataset = worker.Query("SELECT * FROM flight ORDER BY flight_id;");
                     if (dataset != null)
                         DataGrid_fl.ItemsSource = dataset.Tables[0].DefaultView;
                     break;
-                case "btn_rel_sj":
+                case "btn_rel_tck":
                     dataset = worker.Query("SELECT * FROM ticket ORDER BY etkt;");
                     if (dataset != null)
                         DataGrid_tck.ItemsSource = dataset.Tables[0].DefaultView;
                     break;
-                case "btn_rel_dp":
+                case "btn_rel_pers":
                     dataset = worker.Query("SELECT * FROM person ORDER BY passport_id;");
                     if (dataset != null)
                         DataGrid_pers.ItemsSource = dataset.Tables[0].DefaultView;
                     break;
-                case "btn_rel_mv":
+                case "btn_rel_full_ticket_view":
                     dataset = worker.Query("SELECT * FROM full_ticket_view;");
                     if (dataset != null)
                         DataGrid_full_ticket_view.ItemsSource = dataset.Tables[0].DefaultView;
@@ -495,7 +494,7 @@ namespace Coursework_client
         #endregion
 
         #region utils
-        private void toggleTheme(object sender, RoutedEventArgs e)
+        /*private void toggleTheme(object sender, RoutedEventArgs e)
             {
             var theme = paletteHelper.GetTheme();
 
@@ -510,7 +509,7 @@ namespace Coursework_client
                 theme.SetBaseTheme(Theme.Dark);
                 }
             paletteHelper.SetTheme(theme);
-            }
+            }*/
 
         private bool confirmDelete() =>
             MessageBox.Show("Удалить выбранные строки?",
@@ -528,5 +527,9 @@ namespace Coursework_client
         private void exitApp(object sender, RoutedEventArgs e) =>
             Application.Current.Shutdown();
         #endregion
+        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+            {
+
+            }
         }
     }
