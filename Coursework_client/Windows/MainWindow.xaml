@@ -27,21 +27,7 @@
                                 HorizontalAlignment="Right">
                         <StackPanel Orientation="Horizontal"
                                     Margin="5">
-                            <TextBlock VerticalAlignment="Center"
-                                       Text="Темная тема"
-                                       Foreground="#FFA2A2A2"/>
-                            <ToggleButton Cursor="Hand"
-                                          ToolTip="Переключить тему"
-                                          Margin="12 0 8 0" 
-                                          x:Name="themeToggle"
-                                          IsChecked="{Binding IsDarkTheme}"
-                                          Click="toggleTheme"/>
                         </StackPanel>
-                        <TextBlock VerticalAlignment="Center"
-                                   Text="USERNAME"
-                                   Foreground="#FFA2A2A2"
-                                   x:Name="usernameText"
-                                   ToolTip="Текущий пользователь"/>
                         <Button Background="{x:Null}"
                                 BorderBrush="{x:Null}"
                                 VerticalAlignment="Center"
@@ -58,390 +44,415 @@
                 </Grid>
                 <Border BorderBrush="#FFA2A2A2"
                         BorderThickness="0.5"/>
+
                 <TabControl HorizontalAlignment="Center"
+                            TabStripPlacement="Left"
                             Width="2424"
-                            Height="868"
-                            Style="{StaticResource MaterialDesignFilledTabControl}"
+                            Height="847"
                             Margin="0 10">
+                    <TabControl.Resources>
+                    </TabControl.Resources>
                     <TabItem Header="Модели">
-                        <StackPanel Height="769"
+                        <TabItem.Resources>
+                            <Style TargetType="{x:Type TabItem}">
+                                <Setter Property="Background" Value="LawnGreen"></Setter>
+                            </Style>
+                        </TabItem.Resources>
+                        <StackPanel Height="825"
                                     VerticalAlignment="Top">
                             <DataGrid AutoGenerateColumns="True"
                                       ColumnWidth="*"
                                       Style="{StaticResource MaterialDesignDataGrid}"
                                       x:Name="DataGrid_pln_mdl"
                                       IsReadOnly="True"
-                                      Height="695"/>
+                                      Height="747"/>
                             <Border BorderBrush="#FFA2A2A2"
                                     BorderThickness="0.5"/>
                             <Grid Margin="10 20"
-                                  HorizontalAlignment="Right">
+                                  HorizontalAlignment="Left" Height="55"
+                                  VerticalAlignment="Bottom">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="350"/>
-                                    <ColumnDefinition Width="70"/>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Margin="20 12"
-                                           FontSize="12"
-                                           x:Name="responseText_st"
-                                           HorizontalAlignment="Left"
-                                           Grid.Column="0"/>
-                                <Button x:Name="btn_rel_st"
+                                <Button x:Name="btn_rel_pln_md"
                                         Click="reload_db"
-                                        Margin="10 0"
-                                        Style="{StaticResource MaterialDesignPaperButton}"
+                                        Margin="10,4,10,4"
+                                        Content="Обновить"
+                                        FontSize="18"
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
                                         ToolTip="Обновить данные"
-                                        Grid.Column="1">
-                                    <materialDesign:PackIcon Kind="Reload"
-                                                             Foreground="#FFA2A2A2"
-                                                             Width="20"
-                                                             Height="25"/>
-                                </Button>
+                                        Grid.Column="0"/>
                                 <Button x:Name="btn_ins_pln_md"
                                         Click="query_insert"
-                                        Content="Добавить строку"
-                                        Margin="10 0"
+                                        Content="Добавить"
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
+                                        Margin="10,4,10,4"
                                         FontSize="18"
                                         ToolTip="Добавить строку в таблицу модели"
-                                        Grid.Column="2"/>
+                                        Grid.Column="1"/>
                                 <Button x:Name="btn_upd_pln_md"
                                         Click="query_update"
-                                        Content="Изменить строку"
-                                        Margin="10 0"
+                                        Content="Изменить"
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
+                                        Margin="10,4,10,4"
                                         FontSize="18"
                                         ToolTip="Изменить строку в таблице модели"
-                                        Grid.Column="3"/>
+                                        Grid.Column="2"/>
                                 <Button x:Name="btn_del_pln_md"
                                         Click="query_delete"
-                                        Content="Удалить строку"
-                                        Margin="10 0"
+                                        Content="Удалить"
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
+                                        Margin="10,4,10,4"
                                         FontSize="18"
                                         ToolTip="Удалить строку(-и) из таблицы модели"
-                                        Grid.Column="4"/>
+                                        Grid.Column="3"/>
+                                <TextBlock Margin="7,12,0,12"
+                                           FontSize="12"
+                                           x:Name="responseText_pln_md"
+                                           HorizontalAlignment="Left"
+                                           Grid.Column="4" Width="0"/>
                             </Grid>
                         </StackPanel>
                     </TabItem>
 
                     <TabItem Header="Самолеты">
-                        <StackPanel Height="769"
+                        <TabItem.Resources>
+                            <Style TargetType="{x:Type TabItem}">
+                                <Setter Property="Background" Value="LawnGreen"></Setter>
+                            </Style>
+                        </TabItem.Resources>
+                        <StackPanel Height="825"
                                     VerticalAlignment="Top">
                             <DataGrid AutoGenerateColumns="True"
                                       ColumnWidth="*"
                                       Style="{StaticResource MaterialDesignDataGrid}"
                                       x:Name="DataGrid_pln"
                                       IsReadOnly="True"
-                                      Height="695" Width="2422"/>
+                                      Height="747"/>
                             <Border BorderBrush="#FFA2A2A2"
                                     BorderThickness="0.5"/>
                             <Grid Margin="10 20"
-                                  HorizontalAlignment="Right">
+                                  HorizontalAlignment="Left" Height="55"
+                                  VerticalAlignment="Bottom">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="350"/>
-                                    <ColumnDefinition Width="70"/>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Margin="20 12"
-                                           FontSize="12"
-                                           x:Name="responseText_gr"
-                                           HorizontalAlignment="Left"
-                                           Grid.Column="0"/>
-                                <Button x:Name="btn_rel_gr"
+                                <Button x:Name="btn_rel_pln"
                                         Click="reload_db"
-                                        Margin="10 0"
-                                        Style="{StaticResource MaterialDesignPaperButton}"
+                                        Margin="10,4,10,4"
+                                        Content="Обновить"
+                                        FontSize="18"
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
                                         ToolTip="Обновить данные"
-                                        Grid.Column="1">
-                                    <materialDesign:PackIcon Kind="Reload"
-                                                             Foreground="#FFA2A2A2"
-                                                             Width="20"
-                                                             Height="25"/>
-                                </Button>
+                                        Grid.Column="0"/>
                                 <Button x:Name="btn_ins_pln"
                                         Click="query_insert"
-                                        Content="Добавить строку"
-                                        Margin="10 0"
+                                        Content="Добавить"
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
+                                        Margin="10,4,10,4"
                                         FontSize="18"
-                                        ToolTip="Добавить строку в таблицу Самолеты"
-                                        Grid.Column="2"/>
+                                        ToolTip="Добавить строку в таблицу самолеты"
+                                        Grid.Column="1"/>
                                 <Button x:Name="btn_upd_pln"
                                         Click="query_update"
-                                        Content="Изменить строку"
-                                        Margin="10 0"
+                                        Content="Изменить"
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
+                                        Margin="10,4,10,4"
                                         FontSize="18"
-                                        ToolTip="Изменить строку в таблице Самолеты"
-                                        Grid.Column="3"/>
+                                        ToolTip="Изменить строку в таблице самолеты"
+                                        Grid.Column="2"/>
                                 <Button x:Name="btn_del_pln"
                                         Click="query_delete"
-                                        Content="Удалить строку"
-                                        Margin="10 0"
+                                        Content="Удалить"
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
+                                        Margin="10,4,10,4"
                                         FontSize="18"
-                                        ToolTip="Удалить строку(-и) из таблицы Самолеты"
-                                        Grid.Column="4"/>
+                                        ToolTip="Удалить строку(-и) из таблицы самолеты"
+                                        Grid.Column="3"/>
+                                <TextBlock Margin="20 12"
+                                           FontSize="12"
+                                           x:Name="responseText_pln"
+                                           HorizontalAlignment="Left"
+                                           Grid.Column="0"/>
+
                             </Grid>
                         </StackPanel>
                     </TabItem>
 
                     <TabItem Header="Рейсы">
-                        <StackPanel Height="769"
+                        <TabItem.Resources>
+                            <Style TargetType="{x:Type TabItem}">
+                                <Setter Property="Background" Value="LawnGreen"></Setter>
+                            </Style>
+                        </TabItem.Resources>
+                        <StackPanel Height="825"
                                     VerticalAlignment="Top">
                             <DataGrid AutoGenerateColumns="True"
                                       ColumnWidth="*"
                                       Style="{StaticResource MaterialDesignDataGrid}"
                                       x:Name="DataGrid_fl"
                                       IsReadOnly="True"
-                                      Height="695"/>
+                                      Height="747"/>
                             <Border BorderBrush="#FFA2A2A2"
                                     BorderThickness="0.5"/>
                             <Grid Margin="10 20"
-                                  HorizontalAlignment="Right">
+                                  HorizontalAlignment="Left" Height="55"
+                                  VerticalAlignment="Bottom">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="350"/>
-                                    <ColumnDefinition Width="70"/>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Margin="20 12"
-                                           FontSize="12"
-                                           
-                                           x:Name="responseText_mr"
-                                           HorizontalAlignment="Left"
-                                           Grid.Column="0"/>
-                                <Button x:Name="btn_rel_mr"
+                                <Button x:Name="btn_rel_fl"
                                         Click="reload_db"
-                                        Margin="10 0"
-                                        Style="{StaticResource MaterialDesignPaperButton}"
+                                        Margin="10,4,10,4"
+                                        Content="Обновить"
+                                        FontSize="18"
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
                                         ToolTip="Обновить данные"
-                                        Grid.Column="1">
-                                    <materialDesign:PackIcon Kind="Reload"
-                                                             Foreground="#FFA2A2A2"
-                                                             Width="20"
-                                                             Height="25"/>
-                                </Button>
+                                        Grid.Column="0"/>
                                 <Button x:Name="btn_ins_fl"
                                         Click="query_insert"
-                                        Content="Добавить строку"
-                                        Margin="10 0"
+                                        Content="Добавить"
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
+                                        Margin="10,4,10,4"
                                         FontSize="18"
-                                        ToolTip="Добавить строку в таблицу Оценки"
-                                        Grid.Column="2"/>
+                                        ToolTip="Добавить строку в таблицу рейсов"
+                                        Grid.Column="1"/>
                                 <Button x:Name="btn_upd_fl"
                                         Click="query_update"
-                                        Content="Изменить строку"
-                                        Margin="10 0"
+                                        Content="Изменить"
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
+                                        Margin="10,4,10,4"
                                         FontSize="18"
-                                        ToolTip="Изменить строку в таблице Оценки"
-                                        Grid.Column="3"/>
+                                        ToolTip="Изменить строку в таблице рейсов"
+                                        Grid.Column="2"/>
                                 <Button x:Name="btn_del_fl"
-                                        Click="query_delete" 
-                                        Content="Удалить строку"
-                                        Margin="10 0"
+                                        Click="query_delete"
+                                        Content="Удалить"
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
+                                        Margin="10,4,10,4"
                                         FontSize="18"
-                                        ToolTip="Удалить строку(-и) из таблицы Оценки"
-                                        Grid.Column="4"/>
+                                        ToolTip="Удалить строку(-и) из таблицы рейсов"
+                                        Grid.Column="3"/>
+                                <TextBlock Margin="20 12"
+                                           FontSize="12"
+                                           x:Name="responseText_fl"
+                                           HorizontalAlignment="Left"
+                                           Grid.Column="0"/>
                             </Grid>
                         </StackPanel>
                     </TabItem>
 
                     <TabItem Header="Билеты">
-                        <StackPanel Height="769"
+                        <TabItem.Resources>
+                            <Style TargetType="{x:Type TabItem}">
+                                <Setter Property="Background" Value="LawnGreen"></Setter>
+                            </Style>
+                        </TabItem.Resources>
+                        <StackPanel Height="825"
                                     VerticalAlignment="Top">
                             <DataGrid AutoGenerateColumns="True"
                                       ColumnWidth="*"
                                       Style="{StaticResource MaterialDesignDataGrid}"
                                       x:Name="DataGrid_tck"
                                       IsReadOnly="True"
-                                      Height="695"/>
+                                      Height="747"/>
                             <Border BorderBrush="#FFA2A2A2"
                                     BorderThickness="0.5"/>
                             <Grid Margin="10 20"
-                                  HorizontalAlignment="Right">
+                                  HorizontalAlignment="Left" Height="55"
+                                  VerticalAlignment="Bottom">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="350"/>
-                                    <ColumnDefinition Width="70"/>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Margin="20 12"
-                                           FontSize="12"
-                                           
-                                           x:Name="responseText_sj"
-                                           HorizontalAlignment="Left"
-                                           Grid.Column="0"/>
-                                <Button x:Name="btn_rel_sj"
+                                <Button x:Name="btn_rel_tck"
                                         Click="reload_db"
-                                        Margin="10 0"
-                                        Style="{StaticResource MaterialDesignPaperButton}"
+                                        Margin="10,4,10,4"
+                                        Content="Обновить"
+                                        FontSize="18"
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
                                         ToolTip="Обновить данные"
-                                        Grid.Column="1">
-                                    <materialDesign:PackIcon Kind="Reload"
-                                                             Foreground="#FFA2A2A2"
-                                                             Width="20"
-                                                             Height="25"/>
-                                </Button>
+                                        Grid.Column="0"/>
                                 <Button x:Name="btn_ins_tck"
                                         Click="query_insert"
-                                        Content="Добавить строку"
-                                        Margin="10 0" 
+                                        Content="Добавить"
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
+                                        Margin="10,4,10,4"
                                         FontSize="18"
-                                        ToolTip="Добавить строку в таблицу Предметы"
-                                        Grid.Column="2"/>
+                                        ToolTip="Добавить строку в таблицу модели"
+                                        Grid.Column="1"/>
                                 <Button x:Name="btn_upd_tck"
                                         Click="query_update"
-                                        Content="Изменить строку"
-                                        Margin="10 0" 
+                                        Content="Изменить"
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
+                                        Margin="10,4,10,4"
                                         FontSize="18"
-                                        ToolTip="Изменить строку в таблице Предметы"
-                                        Grid.Column="3"/>
-                                <Button x:Name="btn_del_tck" 
+                                        ToolTip="Изменить строку в таблице модели"
+                                        Grid.Column="2"/>
+                                <Button x:Name="btn_del_tck"
                                         Click="query_delete"
-                                        Content="Удалить строку"
-                                        Margin="10 0" 
+                                        Content="Удалить"
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
+                                        Margin="10,4,10,4"
                                         FontSize="18"
-                                        ToolTip="Удалить строку(-и) из таблицы Предметы"
-                                        Grid.Column="4"/>
+                                        ToolTip="Удалить строку(-и) из таблицы модели"
+                                        Grid.Column="3"/>
+                                <TextBlock Margin="20 12"
+                                           FontSize="12"
+                                           x:Name="responseText_tck"
+                                           HorizontalAlignment="Left"
+                                           Grid.Column="0"/>
+
                             </Grid>
                         </StackPanel>
                     </TabItem>
-
                     <TabItem Header="Пассажиры">
-                        <StackPanel Height="769"
+                        <TabItem.Resources>
+                            <Style TargetType="{x:Type TabItem}">
+                                <Setter Property="Background" Value="LawnGreen"></Setter>
+                            </Style>
+                        </TabItem.Resources>
+                        <StackPanel Height="825"
                                     VerticalAlignment="Top">
                             <DataGrid AutoGenerateColumns="True"
                                       ColumnWidth="*"
                                       Style="{StaticResource MaterialDesignDataGrid}"
-                                      x:Name="DataGrid_pers" 
+                                      x:Name="DataGrid_pers"
                                       IsReadOnly="True"
-                                      Height="695"/>
-                            <Border BorderBrush="#FFA2A2A2" 
+                                      Height="747"/>
+                            <Border BorderBrush="#FFA2A2A2"
                                     BorderThickness="0.5"/>
                             <Grid Margin="10 20"
-                                  HorizontalAlignment="Right">
+                                  HorizontalAlignment="Left" Height="55"
+                                  VerticalAlignment="Bottom">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="350"/>
-                                    <ColumnDefinition Width="70"/>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Margin="20 12"
-                                           FontSize="12"
-                                           
-                                           x:Name="responseText_dp"
-                                           HorizontalAlignment="Left"
-                                           Grid.Column="0"/>
-                                <Button x:Name="btn_rel_dp" 
-                                        Click="reload_db" 
-                                        Margin="10 0" 
-                                        Style="{StaticResource MaterialDesignPaperButton}" 
-                                        ToolTip="Обновить данные"
-                                        Grid.Column="1">
-                                    <materialDesign:PackIcon Kind="Reload" 
-                                                             Foreground="#FFA2A2A2" 
-                                                             Width="20" 
-                                                             Height="25"/>
-                                </Button>
-                                <Button x:Name="btn_ins_pers" 
-                                        Click="query_insert" 
-                                        Content="Добавить строку" 
-                                        Margin="10 0"
+                                <Button x:Name="btn_rel_pers"
+                                        Click="reload_db"
+                                        Margin="10,4,10,4"
+                                        Content="Обновить"
                                         FontSize="18"
-                                        ToolTip="Добавить строку в таблицу Кафедры"
-                                        Grid.Column="2"/>
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
+                                        ToolTip="Обновить данные"
+                                        Grid.Column="0"/>
+                                <Button x:Name="btn_ins_pers"
+                                        Click="query_insert"
+                                        Content="Добавить"
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
+                                        Margin="10,4,10,4"
+                                        FontSize="18"
+                                        ToolTip="Добавить строку в таблицу модели"
+                                        Grid.Column="1"/>
                                 <Button x:Name="btn_upd_pers"
                                         Click="query_update"
-                                        Content="Изменить строку" 
-                                        Margin="10 0"
+                                        Content="Изменить"
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
+                                        Margin="10,4,10,4"
                                         FontSize="18"
-                                        ToolTip="Изменить строку в таблице Кафедры"
-                                        Grid.Column="3"/>
+                                        ToolTip="Изменить строку в таблице модели"
+                                        Grid.Column="2"/>
                                 <Button x:Name="btn_del_pers"
-                                        Click="query_delete" 
-                                        Content="Удалить строку" 
-                                        Margin="10 0" 
+                                        Click="query_delete"
+                                        Content="Удалить"
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
+                                        Margin="10,4,10,4"
                                         FontSize="18"
-                                        ToolTip="Удалить строку(-и) из таблицы Кафедры"
-                                        Grid.Column="4"/>
+                                        ToolTip="Удалить строку(-и) из таблицы модели"
+                                        Grid.Column="3"/>
+                                <TextBlock Margin="20 12"
+                                           FontSize="12"
+                                           x:Name="responseText_pers"
+                                           HorizontalAlignment="Left"
+                                           Grid.Column="0"/>
+
                             </Grid>
                         </StackPanel>
                     </TabItem>
 
                     <TabItem Header="full_ticket_view">
-                        <StackPanel Height="769" 
+                        <TabItem.Resources>
+                            <Style TargetType="{x:Type TabItem}">
+                                <Setter Property="Background" Value="LawnGreen"></Setter>
+                            </Style>
+                        </TabItem.Resources>
+                        <StackPanel Height="825"
                                     VerticalAlignment="Top">
                             <DataGrid AutoGenerateColumns="True"
                                       ColumnWidth="*"
                                       Style="{StaticResource MaterialDesignDataGrid}"
-                                      x:Name="DataGrid_full_ticket_view" 
+                                      x:Name="DataGrid_full_ticket_view"
                                       IsReadOnly="True"
-                                      Height="695"/>
-                            <Border BorderBrush="#FFA2A2A2" 
+                                      Height="747"/>
+                            <Border BorderBrush="#FFA2A2A2"
                                     BorderThickness="0.5"/>
-                            <Grid Margin="10 20" 
-                                  HorizontalAlignment="Right">
+                            <Grid Margin="10 20"
+                                  HorizontalAlignment="Left" Height="55"
+                                  VerticalAlignment="Bottom">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="750"/>
-                                    <ColumnDefinition Width="70"/>
                                     <ColumnDefinition Width="200"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Margin="20 12"
-                                           FontSize="12"
-                                           
-                                           x:Name="responseText_mv"
-                                           HorizontalAlignment="Left"
-                                           Grid.Column="0"/>
-                                <Button x:Name="btn_rel_mv"
-                                        Click="reload_db" 
-                                        Margin="10 0" 
-                                        Style="{StaticResource MaterialDesignPaperButton}" 
-                                        ToolTip="Обновить данные"
-                                        Grid.Column="1">
-                                    <materialDesign:PackIcon Kind="Reload" 
-                                                             Foreground="#FFA2A2A2"
-                                                             Width="20" 
-                                                             Height="25"/>
-                                </Button>
-                                <Button x:Name="btn_upd_mv"
-                                        Click="query_update"
-                                        Content="Изменить строку"
-                                        Margin="10 0" 
+                                <Button x:Name="btn_rel_full_ticket_view"
+                                        Click="reload_db"
+                                        Margin="10,4,10,4"
+                                        Content="Обновить"
                                         FontSize="18"
-                                        ToolTip="Изменить строку в таблице marks_view"
-                                        Grid.Column="2"/>
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
+                                        ToolTip="Обновить данные"
+                                        Grid.Column="0"/>
                             </Grid>
                         </StackPanel>
                     </TabItem>
 
                     <TabItem Header="Задания">
-                        <StackPanel Height="769" 
+                        <TabItem.Resources>
+                            <Style TargetType="{x:Type TabItem}">
+                                <Setter Property="Background" Value="LawnGreen"></Setter>
+                            </Style>
+                        </TabItem.Resources>
+                        <StackPanel Height="849" 
                                     VerticalAlignment="Top">
                             <DataGrid AutoGenerateColumns="True"
                                       ColumnWidth="*"
                                       Style="{StaticResource MaterialDesignDataGrid}"
                                       x:Name="DataGrid_tasks" 
                                       IsReadOnly="True"
-                                      Height="695"/>
+                                      Height="725"/>
                             <Border BorderBrush="#FFA2A2A2" 
                                     BorderThickness="0.5"/>
                             <StackPanel Orientation="Horizontal"
                                         Margin="10 25" 
-                                        HorizontalAlignment="Right">
+                                        HorizontalAlignment="Left" Width="1433">
                                 <ComboBox Style="{StaticResource MaterialDesignFilledComboBox}"
                                           materialDesign:HintAssist.Hint="Выберите задание"
                                           FontSize="16"
                                           Width="600"
                                           Padding="2"
                                           x:Name="task_combobox">
-                                    <ComboBoxItem Content="Задание 3a. Составной многотабличный запрос"
+                                    <ComboBoxItem Content="2(a).CASE"
                                                   IsSelected="True"/>
-                                    <ComboBoxItem Content="Задание 3b. Многотабличный VIEW, с возможностью его обновления"/>
-                                    <ComboBoxItem Content="Задание 3c. Подзапрос в разделе SELECT"/>
-                                    <ComboBoxItem Content="Задание 3c. Подзапрос в разделе FROM"/>
+                                    <ComboBoxItem Content="2(b).Запрос к view"/>
+                                    <ComboBoxItem Content="2(c).Запрос, содержащий коррелированные и некоррелированные подзапросы"/>
+                                    <ComboBoxItem Content="2(d).Запрос, содержажий HAVING и скалярную функцию"/>
                                     <ComboBoxItem Content="Задание 3c. Подзапрос в разделе WHERE"/>
                                     <ComboBoxItem Content="Задание 3d. Коррелированный подзапрос 1"/>
                                     <ComboBoxItem Content="Задание 3d. Коррелированный подзапрос 2"/>
@@ -456,9 +467,31 @@
                                         Margin="15 0" 
                                         FontSize="18"
                                         Height="50"
-                                        ToolTip="Выполнить выбранное задание"
+                                        Style="{StaticResource MaterialDesignFlatAccentBgButton}"
+                                        ToolTip="Выполнить"
                                         Grid.Column="0"
                                         Grid.Row="1"/>
+                                <TextBlock
+                                FontSize="18"
+                                Width="160"
+                                Margin="65 0"
+                                Text="3(b) ORDER BY"
+                                TextAlignment="Justify"
+                                VerticalAlignment="Bottom"
+                                Style="{StaticResource MaterialDesignTextBlock}" Height="32">
+                                </TextBlock>
+                                
+                                <TextBox
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Right"
+                                TextAlignment="Justify"
+                                Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                Margin="10 0"
+                                FontSize="18"
+                                Width="160"
+                                Height="50"
+                                x:Name="order_box">
+                                </TextBox>
                             </StackPanel>
                         </StackPanel>
                     </TabItem>
