@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="База данных аэропорта"
         Height="900"
-        Width="2500"
+        Width="1444"
         TextElement.Foreground="{StaticResource MaterialDesignBody}"
         Background="{x:Null}"
         WindowStyle="None"
@@ -18,10 +18,12 @@
         >
     <materialDesign:Card UniformCornerRadius="15"
                          Background="{DynamicResource MaterialDesignPaper}"
-                         materialDesign:ShadowAssist.ShadowDepth="Depth4">
+                         materialDesign:ShadowAssist.ShadowDepth="Depth4" HorizontalAlignment="Left" Width="1869">
         <materialDesign:DialogHost CloseOnClickAway="True"
+                                   HorizontalAlignment="Left"
+                                   Width="1835"
                                    x:Name="DialogHost">
-            <StackPanel x:Name="body">
+            <StackPanel x:Name="body" Margin="0,0,372,0">
                 <Grid Height="40">
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right">
@@ -47,7 +49,7 @@
 
                 <TabControl HorizontalAlignment="Center"
                             TabStripPlacement="Left"
-                            Width="2424"
+                            Width="1432"
                             Height="847"
                             Margin="0 10">
                     <TabControl.Resources>
@@ -65,9 +67,9 @@
                                       Style="{StaticResource MaterialDesignDataGrid}"
                                       x:Name="DataGrid_pln_mdl"
                                       IsReadOnly="True"
-                                      Height="747"/>
+                                      Height="747" Width="1342"/>
                             <Border BorderBrush="#FFA2A2A2"
-                                    BorderThickness="0.5"/>
+                                    BorderThickness="1.0 1.0 1.0 1.0"/>
                             <Grid Margin="10 20"
                                   HorizontalAlignment="Left" Height="55"
                                   VerticalAlignment="Bottom">
@@ -76,7 +78,7 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
-                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="400"/>
                                 </Grid.ColumnDefinitions>
                                 <Button x:Name="btn_rel_pln_md"
                                         Click="reload_db"
@@ -110,11 +112,11 @@
                                         FontSize="18"
                                         ToolTip="Удалить строку(-и) из таблицы модели"
                                         Grid.Column="3"/>
-                                <TextBlock Margin="7,12,0,12"
+                                <TextBlock Margin="20,0,0,10"
                                            FontSize="12"
                                            x:Name="responseText_pln_md"
                                            HorizontalAlignment="Left"
-                                           Grid.Column="4" Width="0"/>
+                                           Grid.Column="4" Width="343"/>
                             </Grid>
                         </StackPanel>
                     </TabItem>
@@ -132,9 +134,9 @@
                                       Style="{StaticResource MaterialDesignDataGrid}"
                                       x:Name="DataGrid_pln"
                                       IsReadOnly="True"
-                                      Height="747"/>
+                                      Height="747" SelectionChanged="DataGrid_pln_SelectionChanged" Width="2336"/>
                             <Border BorderBrush="#FFA2A2A2"
-                                    BorderThickness="0.5"/>
+                                    BorderThickness="0.5 0.5 0.5 0.5"/>
                             <Grid Margin="10 20"
                                   HorizontalAlignment="Left" Height="55"
                                   VerticalAlignment="Bottom">
@@ -143,7 +145,7 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
-                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="400"/>
                                 </Grid.ColumnDefinitions>
                                 <Button x:Name="btn_rel_pln"
                                         Click="reload_db"
@@ -181,7 +183,7 @@
                                            FontSize="12"
                                            x:Name="responseText_pln"
                                            HorizontalAlignment="Left"
-                                           Grid.Column="0"/>
+                                           Grid.Column="4"/>
 
                             </Grid>
                         </StackPanel>
@@ -211,7 +213,7 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
-                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="400"/>
                                 </Grid.ColumnDefinitions>
                                 <Button x:Name="btn_rel_fl"
                                         Click="reload_db"
@@ -249,7 +251,7 @@
                                            FontSize="12"
                                            x:Name="responseText_fl"
                                            HorizontalAlignment="Left"
-                                           Grid.Column="0"/>
+                                           Grid.Column="4"/>
                             </Grid>
                         </StackPanel>
                     </TabItem>
@@ -278,7 +280,7 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
-                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="400"/>
                                 </Grid.ColumnDefinitions>
                                 <Button x:Name="btn_rel_tck"
                                         Click="reload_db"
@@ -316,7 +318,7 @@
                                            FontSize="12"
                                            x:Name="responseText_tck"
                                            HorizontalAlignment="Left"
-                                           Grid.Column="0"/>
+                                           Grid.Column="4"/>
 
                             </Grid>
                         </StackPanel>
@@ -345,7 +347,7 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="200"/>
-                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="400"/>
                                 </Grid.ColumnDefinitions>
                                 <Button x:Name="btn_rel_pers"
                                         Click="reload_db"
@@ -383,7 +385,7 @@
                                            FontSize="12"
                                            x:Name="responseText_pers"
                                            HorizontalAlignment="Left"
-                                           Grid.Column="0"/>
+                                           Grid.Column="4"/>
 
                             </Grid>
                         </StackPanel>
@@ -423,7 +425,7 @@
                         </StackPanel>
                     </TabItem>
 
-                    <TabItem Header="Задания">
+                    <TabItem Header="Задания" Height="54">
                         <TabItem.Resources>
                             <Style TargetType="{x:Type TabItem}">
                                 <Setter Property="Background" Value="LawnGreen"></Setter>
@@ -448,18 +450,12 @@
                                           Width="600"
                                           Padding="2"
                                           x:Name="task_combobox">
-                                    <ComboBoxItem Content="2(a).CASE"
+                                    <ComboBoxItem Content="2(a).Запрос, содержажий CASE"
                                                   IsSelected="True"/>
-                                    <ComboBoxItem Content="2(b).Запрос к view"/>
+                                    <ComboBoxItem Content="2(b).Запрос к view с выбором ORDER"/>
                                     <ComboBoxItem Content="2(c).Запрос, содержащий коррелированные и некоррелированные подзапросы"/>
                                     <ComboBoxItem Content="2(d).Запрос, содержажий HAVING и скалярную функцию"/>
-                                    <ComboBoxItem Content="Задание 3c. Подзапрос в разделе WHERE"/>
-                                    <ComboBoxItem Content="Задание 3d. Коррелированный подзапрос 1"/>
-                                    <ComboBoxItem Content="Задание 3d. Коррелированный подзапрос 2"/>
-                                    <ComboBoxItem Content="Задание 3d. Коррелированный подзапрос 3"/>
-                                    <ComboBoxItem Content="Задание 3e. Многотабличный запрос...HAVING"/>
-                                    <ComboBoxItem Content="Задание 3f. Запрос с предикатом ANY"/>
-                                    <ComboBoxItem Content="Задание 3f. Запрос с предикатом ALL"/>
+                                    <ComboBoxItem Content="2(e).Запрос, содержажий ANY"/>
                                 </ComboBox>
                                 <Button x:Name="btn_task"
                                         Click="make_task"
@@ -475,23 +471,33 @@
                                 FontSize="18"
                                 Width="160"
                                 Margin="65 0"
-                                Text="3(b) ORDER BY"
-                                TextAlignment="Justify"
+                                Text="2(b) ORDER BY"
+                                TextAlignment="Center"
                                 VerticalAlignment="Bottom"
-                                Style="{StaticResource MaterialDesignTextBlock}" Height="32">
+                                Style="{StaticResource MaterialDesignTextBlock}" Height="46">
                                 </TextBlock>
-                                
-                                <TextBox
+
+                                <ComboBox
+                                Style="{StaticResource MaterialDesignFilledComboBox}"
                                 VerticalAlignment="Center"
-                                HorizontalAlignment="Right"
-                                TextAlignment="Justify"
-                                Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                                Margin="10 0"
+                                Margin="-30 0"
                                 FontSize="18"
                                 Width="160"
-                                Height="50"
+                                Height="65"
                                 x:Name="order_box">
-                                </TextBox>
+                                    <ComboBoxItem Content="passport_id"/>
+                                    <ComboBoxItem Content="etkt"/>
+                                    <ComboBoxItem Content="plane_registration_number"/>
+                                    <ComboBoxItem Content="flight_id"/>
+                                    <ComboBoxItem Content="class"/>
+                                    <ComboBoxItem Content="price_$"/>
+                                    <ComboBoxItem Content="seat"/>
+                                    <ComboBoxItem Content="last_name"/>
+                                    <ComboBoxItem Content="first_name"/>
+                                    <ComboBoxItem Content="father_name"/>
+                                    <ComboBoxItem Content="date_of_birth"/>
+                                    <ComboBoxItem Content="sex"/>
+                                </ComboBox>
                             </StackPanel>
                         </StackPanel>
                     </TabItem>

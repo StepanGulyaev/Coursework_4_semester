@@ -368,62 +368,7 @@ namespace Coursework_client
                     break;
                 case 4:
                     dataset = worker.Query(
-                        "SELECT count(mark) AS resits FROM marks " +
-                        "WHERE mark = (SELECT MIN(mark) FROM marks); "
-                    );
-                    if (dataset != null)
-                        DataGrid_tasks.ItemsSource = dataset.Tables[0].DefaultView;
-                    break;
-                case 5:
-                    dataset = worker.Query(
-                        "SELECT surname, name, " +
-                            "(SELECT cypher FROM \"groups\" WHERE id = group_id) AS \"group\" " +
-                        "FROM students;"
-                    );
-                    if (dataset != null)
-                        DataGrid_tasks.ItemsSource = dataset.Tables[0].DefaultView;
-                    break;
-                case 6:
-                    dataset = worker.Query(
-                        "SELECT * FROM \"groups\" g WHERE NOT " +
-                            "exists(SELECT * FROM students s WHERE g.id = s.group_id) " +
-                            "ORDER BY id;"
-                    );
-                    if (dataset != null)
-                        DataGrid_tasks.ItemsSource = dataset.Tables[0].DefaultView;
-                    break;
-                case 7:
-                    dataset = worker.Query(
-                        "SELECT id, mark, passes, " +
-                           "(SELECT surname FROM students WHERE student_id = students.id), " +
-                           "(SELECT title FROM subjects WHERE subject_id = subjects.id) " +
-                        "FROM marks; "
-                    );
-                    if (dataset != null)
-                        DataGrid_tasks.ItemsSource = dataset.Tables[0].DefaultView;
-                    break;
-                case 8:
-                    dataset = worker.Query(
-                        "SELECT surname, name, MIN(mark) as min_mark " +
-                        "FROM marks JOIN students s on marks.student_id = s.id " +
-                        "GROUP BY surname, name " +
-                        "HAVING MIN(mark) = 3;"
-                    );
-                    if (dataset != null)
-                        DataGrid_tasks.ItemsSource = dataset.Tables[0].DefaultView;
-                    break;
-                case 9:
-                    dataset = worker.Query(
-                        "SELECT * FROM marks_view WHERE group_name = ANY('{БИСО-01-20,БИСО-02-20}');"
-                    );
-                    if (dataset != null)
-                        DataGrid_tasks.ItemsSource = dataset.Tables[0].DefaultView;
-                    break;
-                case 10:
-                    dataset = worker.Query(
-                        "SELECT cypher, student_count " +
-                        "FROM \"groups\" " +
-                        "WHERE student_count > ALL(SELECT AVG(student_count) FROM \"groups\");"
+                        "SELECT * FROM full_ticket_view WHERE flight_id = ANY('{BT211,K345}');"
                     );
                     if (dataset != null)
                         DataGrid_tasks.ItemsSource = dataset.Tables[0].DefaultView;
@@ -527,7 +472,7 @@ namespace Coursework_client
         private void exitApp(object sender, RoutedEventArgs e) =>
             Application.Current.Shutdown();
         #endregion
-        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void DataGrid_pln_SelectionChanged(object sender, SelectionChangedEventArgs e)
             {
 
             }

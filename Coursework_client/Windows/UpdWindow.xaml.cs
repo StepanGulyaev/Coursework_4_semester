@@ -108,7 +108,6 @@ namespace Coursework_client
                     third.MaxLength = 128;
                     fourth.MaxLength = 128;
                     fifth.MaxLength = 128;
-                    sixth.MaxLength = 128;
 
                     if (IsUpdating)
                         {
@@ -120,7 +119,6 @@ namespace Coursework_client
                         third.Text = pln[3].ToString();
                         fourth.Text = pln[4].ToString();
                         fifth.Text = pln[5].ToString();
-                        sixth.Text = pln[6].ToString();
                         }
 
                     break;
@@ -169,7 +167,7 @@ namespace Coursework_client
 
                     if (IsUpdating)
                         {
-                        DataSet ticket = Worker.Query($"SELECT * FROM ticket WHERE etkt= '{UpdatingId}';");
+                        DataSet ticket = Worker.Query($"SELECT * FROM ticket WHERE etkt = '{UpdatingId}';");
                         var tck = ticket.Tables[0].Rows[0];
                         id_box.Text = UpdatingId.ToString();
                         first.Text = tck[1].ToString();
@@ -261,7 +259,7 @@ namespace Coursework_client
                     var interior_width_m = Convert.ToString(eight.Text.Replace(',', '.'));
                     var maximal_takeoff_weight_kg = Convert.ToInt32(ninth.Text);
                     var capacity_of_passengers = Convert.ToInt32(tenth.Text);
-                    var cruising_speed_km_per_h = Convert.ToDouble(eleventh.Text.Replace(',', '.'));
+                    var cruising_speed_km_per_h = Convert.ToString(eleventh.Text.Replace(',', '.'));
                     var flight_distance_m = Convert.ToInt32(twelwe.Text);
                     var height_limit_m = Convert.ToInt32(thirteenth.Text);
                     var takeoff_distance_m = Convert.ToInt32(fourteenth.Text);
@@ -278,7 +276,7 @@ namespace Coursework_client
                         || string.IsNullOrWhiteSpace(interior_width_m)
                         || (maximal_takeoff_weight_kg == 0)
                         || (capacity_of_passengers == 0)
-                        || (cruising_speed_km_per_h == 0)
+                        || string.IsNullOrWhiteSpace(cruising_speed_km_per_h)
                         || (flight_distance_m == 0)
                         || (height_limit_m == 0)
                         || (takeoff_distance_m == 0))
@@ -401,21 +399,67 @@ namespace Coursework_client
                         return;
                         }
 
+                    if(!string.IsNullOrWhiteSpace(departure_time_actual))
+                        {
+                        departure_time_actual = $"'{departure_time_actual}'";
+                        }
+                    else
+                        {
+                        departure_time_actual = "null";
+                        }
+
+                    if (!string.IsNullOrWhiteSpace(arrival_time_actual))
+                        {
+                        arrival_time_actual = $"'{arrival_time_actual}'";
+                        }
+                    else
+                        {
+                        arrival_time_actual = "null";
+                        }
+
+                    if (!string.IsNullOrWhiteSpace(terminal))
+                        {
+                        terminal = $"'{terminal}'";
+                        }
+                    else
+                        {
+                        terminal = "null";
+                        }
+
+                    if (!string.IsNullOrWhiteSpace(gate))
+                        {
+                        gate = $"'{gate}'";
+                        }
+                    else
+                        {
+                        gate= "null";
+                        }
+
+                    if (!string.IsNullOrWhiteSpace(remark))
+                        {
+                        remark = $"'{remark}'";
+                        }
+                    else
+                        {
+                        remark = "null";
+                        }
+
+
                     try
                         {
                         if (!IsUpdating)
                             {
-                            var response = Worker.Query($"CALL insert_flight('{flight_id}', " +
-                                $"'{plane_registration_number}', '{departure_point}', '{arrival_point}'," +
-                                $"'{departure_time_scheduled}','{departure_time_actual}',{arrival_time_scheduled}" +
-                                $"'{arrival_time_actual}','{terminal}','{gate}','{remark}');");
+                            var response = Worker.Query($"CALL insert_flight('{flight_id}'," +
+                                $"'{plane_registration_number}','{departure_point}', '{arrival_point}'," +
+                                $"'{departure_time_scheduled}',{departure_time_actual},'{arrival_time_scheduled}'," +
+                                $"{arrival_time_actual},{terminal},{gate},{remark});");
                             }
                         else
                             {
                             var response = Worker.Query($"CALL update_flight('{UpdatingId}'," +
-                                $"'{plane_registration_number}', '{departure_point}', '{arrival_point}'," +
-                                $"'{departure_time_scheduled}','{departure_time_actual}',{arrival_time_scheduled}" +
-                                $"'{arrival_time_actual}','{terminal}','{gate}','{remark}');");
+                                $"'{plane_registration_number}', '{departure_point}','{arrival_point}'," +
+                                $"'{departure_time_scheduled}',{departure_time_actual},'{arrival_time_scheduled}'," +
+                                $"{arrival_time_actual},{terminal},{gate},{remark});");
                             StartCloseTimer();
                             btn_confirm.IsEnabled = false;
                             break;
@@ -447,7 +491,7 @@ namespace Coursework_client
                     var flight_code = second.Text;
                     var passport_code = third.Text;
                     var ticket_class = fourth.Text;
-                    var price = Convert.ToDouble(fifth.Text);
+                    var price = Convert.ToString(fifth.Text.Replace(',', '.'));
                     var seat = sixth.Text;
 
 
@@ -456,7 +500,7 @@ namespace Coursework_client
                         || string.IsNullOrWhiteSpace(flight_code)
                         || string.IsNullOrWhiteSpace(passport_code)
                         || string.IsNullOrWhiteSpace(ticket_class)
-                        || (price == 0)
+                        || string.IsNullOrWhiteSpace(price)
                         || string.IsNullOrWhiteSpace(seat))
                         {
                         responseText.Text = "Заполните необходимые поля!";
@@ -467,9 +511,8 @@ namespace Coursework_client
                         {
                         if (!IsUpdating)
                             {
-                            var response = Worker.Query($"CALL insert_ticket('{etkt}', " +
-                                $"'{plane_reg_number}', '{flight_code}', '{passport_code}', '{ticket_class}', {price},'{seat}');");
-                            responseText.Text = response.Tables[0].Rows[0][0].ToString();
+                            var response = Worker.Query($"CALL insert_ticket('{etkt}'," +
+                                $"'{plane_reg_number}', '{flight_code}','{passport_code}','{ticket_class}',{price},'{seat}');");
                             }
                         else
                             {
@@ -509,18 +552,31 @@ namespace Coursework_client
                         || string.IsNullOrWhiteSpace(first_name)
                         || string.IsNullOrWhiteSpace(date_of_birth)
                         || string.IsNullOrWhiteSpace(sex))
+                        {
+                        responseText.Text = "Заполните необходимые поля!";
+                        return;
+                        }
 
-                        try
+                    if (!string.IsNullOrWhiteSpace(father_name))
+                        {
+                        father_name = $"'{father_name}'";
+                        }
+                    else
+                        {
+                        father_name = "null";
+                        }
+
+                    try
                         {
                         if (!IsUpdating)
                             {
                             var response = Worker.Query($"CALL insert_person('{passport_id}','{last_name}','{first_name}'," +
-                                $"'{father_name}','{date_of_birth}','{sex}');");
+                                $"{father_name},'{date_of_birth}','{sex}');");
                             }
                         else
                             {
                             var response = Worker.Query($"CALL update_person('{UpdatingId}','{last_name}','{first_name}'," +
-                                $"'{father_name}','{date_of_birth}','{sex}');");
+                                $"{father_name},'{date_of_birth}','{sex}');");
                             StartCloseTimer();
                             btn_confirm.IsEnabled = false;
                             break;
@@ -551,6 +607,7 @@ namespace Coursework_client
             base.OnMouseLeftButtonDown(e);
             DragMove();
             }
+            
 
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
             {
