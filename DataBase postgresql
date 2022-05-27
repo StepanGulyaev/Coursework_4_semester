@@ -1,0 +1,1836 @@
+
+CREATE DATABASE airport_db;
+
+CREATE SCHEMA fleet;
+CREATE SCHEMA flight;
+CREATE SCHEMA ticket;
+CREATE SCHEMA admin;
+CREATE SCHEMA service;
+
+CREATE TABLE fleet.plane_model(
+icao_code VARCHAR(5) NOT NULL PRIMARY KEY
+	CONSTRAINT not_empty_code CHECK (icao_code != ''),
+model_name VARCHAR(64) NOT NULL UNIQUE
+	CONSTRAINT not_empty_name CHECK (model_name != ''),
+plane_type VARCHAR(32) NOT NULL
+	CONSTRAINT not_empty_type CHECK (plane_type != ''),
+engine VARCHAR(64) NOT NULL CONSTRAINT not_empty_engine CHECK (engine != ''),
+crew INT NOT NULL
+	CONSTRAINT positive_crew CHECK (crew > 0),
+length_m REAL NOT NULL
+	CONSTRAINT positive_length CHECK (length_m > 0),
+wingspan_m REAL NOT NULL
+	CONSTRAINT positive_wingspan CHECK (wingspan_m > 0),
+height_m REAL NOT NULL
+	CONSTRAINT positive_height CHECK (height_m > 0),
+interior_width_m REAL NOT NULL
+	CONSTRAINT positive_width CHECK (interior_width_m > 0),
+maximal_takeoff_weight_kg BIGINT NOT NULL
+	CONSTRAINT positive_weight CHECK (maximal_takeoff_weight_kg > 0),
+capacity_of_passengers INT
+	CONSTRAINT positive_capacity CHECK (capacity_of_passengers > 0),
+cruising_speed_km_per_h REAL NOT NULL
+	CONSTRAINT positive_speed CHECK (cruising_speed_km_per_h > 0),
+flight_distance_m INT NOT NULL
+	CONSTRAINT positive_distance CHECK (flight_distance_m > 0),
+height_limit_m INT NOT NULL
+	CONSTRAINT positive_limiit CHECK (height_limit_m > 0),
+takeoff_distance_m INT NOT NULL
+	CONSTRAINT positive_takeoff CHECK (height_limit_m > 0)
+);
+
+CREATE TABLE fleet.plane(
+registration_number VARCHAR(10) NOT NULL PRIMARY KEY
+	CONSTRAINT not_empty_number CHECK(registration_number != ''),
+model VARCHAR(5) NOT NULL
+	CONSTRAINT not_empty_model CHECK(model != ''),
+manufacturer VARCHAR(128) NOT NULL
+	CONSTRAINT not_empty_manufacturer CHECK(manufacturer != ''),
+year_of_issue INT NOT NULL
+	CONSTRAINT normal_year CHECK (year_of_issue >= 1903 AND year_of_issue <= EXTRACT(YEAR FROM CURRENT_TIMESTAMP) ),
+owner VARCHAR(128) NOT NULL
+	CONSTRAINT not_empty_owner CHECK(owner != ''),
+status VARCHAR(32) NOT NULL
+	CONSTRAINT not_empty_status CHECK(status != ''),
+last_status_update TIMESTAMP,
+FOREIGN KEY (model) REFERENCES plane_model(icao_code) ON DELETE CASCADE
+);
+
+CREATE TABLE flight.flight(
+flight_id VARCHAR(16) NOT NULL PRIMARY KEY
+	CONSTRAINT not_empty_flight_id CHECK (flight_id != ''),
+plane_registration_number VARCHAR(10) NOT NULL
+	CONSTRAINT not_empty_registration_number CHECK (plane_registration_number != ''),
+departure_point VARCHAR (64) NOT NULL
+	CONSTRAINT not_empty_departure_point CHECK (departure_point != ''),
+arrival_point VARCHAR (64) NOT NULL
+	CONSTRAINT not_empty_arrival_point CHECK (arrival_point != ''),
+departure_time_scheduled TIMESTAMP WITH TIME ZONE NOT NULL
+	CONSTRAINT normal_departure_scheduled CHECK(EXTRACT(YEAR FROM departure_time_scheduled) >= 1903 ),
+departure_time_actual TIMESTAMP WITH TIME ZONE,
+arrival_time_scheduled TIMESTAMP WITH TIME ZONE NOT NULL
+	CONSTRAINT normal_arrival_schedule CHECK(arrival_time_scheduled > departure_time_scheduled),
+arrival_time_actual TIMESTAMP WITH TIME ZONE,
+terminal VARCHAR(5),
+gate VARCHAR(5),
+remark VARCHAR(64),
+FOREIGN KEY (plane_registration_number) REFERENCES plane(registration_number)
+);
+
+CREATE TABLE ticket.person(
+passport_id VARCHAR(15) NOT NULL PRIMARY KEY
+	CONSTRAINT not_empty_passport_id CHECK (passport_id != ''),
+last_name VARCHAR(64) NOT NULL
+	CONSTRAINT not_empty_last_name CHECK (last_name != ''),
+first_name VARCHAR(64) NOT NULL
+	CONSTRAINT not_empty_first_name CHECK (first_name != ''),
+father_name VARCHAR(64),
+date_of_birth DATE NOT NULL
+	CONSTRAINT normal_date CHECK (date_of_birth >= '1800-01-01' AND date_of_birth <= CURRENT_DATE),
+sex VARCHAR(6) NOT NULL
+	CONSTRAINT not_empty_sex CHECK (sex != '')
+);
+
+CREATE TABLE ticket.ticket(
+etkt VARCHAR(20) NOT NULL PRIMARY KEY
+	CONSTRAINT not_empty_etkt CHECK (etkt != ''),
+plane_registration_number VARCHAR(10) NOT NULL
+	CONSTRAINT not_empty_plane_registration_number CHECK (plane_registration_number != ''),
+flight_id VARCHAR(16) NOT NULL
+	CONSTRAINT not_empty_flight_id CHECK (flight_id != ''),
+passport_id VARCHAR(15) NOT NULL
+	CONSTRAINT not_empty_passport_id CHECK (passport_id != ''),
+class VARCHAR (16) NOT NULL
+	CONSTRAINT not_empty_class CHECK (class != ''),
+price_$ NUMERIC(15,2) NOT NULL
+	CONSTRAINT positive_price CHECK (price_$ >= 0),
+seat VARCHAR(5) NOT NULL
+	CONSTRAINT not_empty_seat CHECK (seat != ''),
+FOREIGN KEY (plane_registration_number) REFERENCES plane(registration_number),
+FOREIGN KEY (flight_id) REFERENCES flight(flight_id) ON DELETE CASCADE,
+FOREIGN KEY (passport_id) REFERENCES person(passport_id) ON DELETE CASCADE
+);
+
+DROP EXTENSION IF EXISTS pg_trgm CASCADE;
+CREATE EXTENSION pg_trgm;
+
+ALTER TABLE plane_model DROP CONSTRAINT IF EXISTS plane_model_pkey CASCADE;
+ALTER TABLE plane_model DROP CONSTRAINT IF EXISTS plane_model_name_key CASCADE;
+ALTER TABLE plane DROP CONSTRAINT IF EXISTS plane_pkey CASCADE;
+ALTER TABLE flight DROP CONSTRAINT IF EXISTS flight_pkey CASCADE;
+ALTER TABLE ticket DROP CONSTRAINT IF EXISTS ticket_pkey CASCADE;
+
+ALTER TABLE plane_model_garbage DROP CONSTRAINT IF EXISTS plane_model_garbage_pkey CASCADE;
+ALTER TABLE plane_model_garbage DROP CONSTRAINT IF EXISTS plane_model_garbage_model_name_key CASCADE;
+ALTER TABLE plane_garbage DROP CONSTRAINT IF EXISTS plane_garbage_pkey CASCADE;
+ALTER TABLE flight_garbage DROP CONSTRAINT IF EXISTS flight_garbage_pkey CASCADE;
+ALTER TABLE ticket_garbage DROP CONSTRAINT IF EXISTS ticket_garbage_pkey CASCADE;
+
+
+DROP INDEX IF EXISTS
+plane_model_pkey,
+plane_model_name_key,
+plane_pkey,
+flight_pkey,
+departure_time_scheduled_index,
+departure_time_actual_index,
+arrival_time_scheduled_index,
+arrival_time_actual_index,
+ticket_pkey,
+person_pkey,
+plane_model_garbage_pkey,
+plane_model_garbage_name_key,
+plane_garbage_pkey,
+flight_garbage_pkey,
+departure_time_scheduled_garbage_index,
+departure_time_actual_garbage_index,
+arrival_time_scheduled_garbage_index,
+arrival_time_actual_garbage_index,
+ticket_garbage_pkey,
+person_garbage_pkey CASCADE;
+
+
+CREATE UNIQUE INDEX plane_model_pkey ON fleet.plane_model USING btree (icao_code);
+CREATE UNIQUE INDEX plane_model_name_key ON fleet.plane_model USING btree (model_name);
+CREATE UNIQUE INDEX plane_pkey ON fleet.plane USING btree (registration_number);
+CREATE UNIQUE INDEX flight_pkey ON flight.flight USING btree (flight_id);
+CREATE INDEX departure_time_scheduled_index ON flight.flight USING brin(departure_time_scheduled);
+CREATE INDEX departure_time_actual_index ON flight.flight USING brin(departure_time_actual);
+CREATE INDEX arrival_time_scheduled_index ON flight.flight USING brin(arrival_time_scheduled);
+CREATE INDEX arrival_time_actual_index ON flight.flight USING brin(arrival_time_actual);
+CREATE UNIQUE INDEX ticket_pkey ON ticket.ticket USING btree (etkt);
+CREATE INDEX person_pkey ON ticket.person USING gin(passport_id gin_trgm_ops);
+
+CREATE UNIQUE INDEX plane_model_garbage_pkey ON fleet.plane_model_garbage USING btree (icao_code);
+CREATE UNIQUE INDEX plane_model_garbage_name_key ON fleet.plane_model_garbage USING btree (model_name);
+CREATE UNIQUE INDEX plane_garbage_pkey ON fleet.plane_garbage USING btree(registration_number);
+CREATE UNIQUE INDEX flight_garbage_pkey ON flight.flight_garbage USING btree (flight_id);
+CREATE INDEX departure_time_scheduled_garbage_index ON flight.flight USING brin(departure_time_scheduled);
+CREATE INDEX departure_time_actual_garbage_index ON flight.flight USING brin(departure_time_actual);
+CREATE INDEX arrival_time_scheduled_garbage_index ON flight.flight USING brin(arrival_time_scheduled);
+CREATE INDEX arrival_time_actual_garbage_index ON flight.flight USING brin(arrival_time_actual);
+CREATE UNIQUE INDEX ticket_garbage_pkey ON ticket.ticket_garbage USING btree (etkt);
+CREATE INDEX person_garbage_pkey ON ticket.person_garbage USING gin(passport_id gin_trgm_ops);
+
+--Garbage
+
+CREATE TABLE fleet.plane_model_garbage(
+icao_code VARCHAR(5) NOT NULL PRIMARY KEY
+	CONSTRAINT not_empty_code CHECK (icao_code != ''),
+model_name VARCHAR(64) NOT NULL UNIQUE
+	CONSTRAINT not_empty_name CHECK (model_name != ''),
+plane_type VARCHAR(32) NOT NULL
+	CONSTRAINT not_empty_type CHECK (plane_type != ''),
+engine VARCHAR(64) NOT NULL
+	CONSTRAINT not_empty_engine CHECK (engine != ''),
+crew INT NOT NULL
+	CONSTRAINT positive_crew CHECK (crew > 0),
+length_m REAL NOT NULL
+	CONSTRAINT positive_length CHECK (length_m > 0),
+wingspan_m REAL NOT NULL
+	CONSTRAINT positive_wingspan CHECK (wingspan_m > 0),
+height_m REAL NOT NULL
+	CONSTRAINT positive_height CHECK (height_m > 0),
+interior_width_m REAL NOT NULL
+	CONSTRAINT positive_width CHECK (interior_width_m > 0),
+maximal_takeoff_weight_kg BIGINT NOT NULL CONSTRAINT positive_weight CHECK (maximal_takeoff_weight_kg > 0),
+capacity_of_passengers INT
+	CONSTRAINT positive_capacity CHECK (capacity_of_passengers > 0),
+cruising_speed_km_per_h REAL NOT NULL
+	CONSTRAINT positive_speed CHECK (cruising_speed_km_per_h > 0),
+flight_distance_m INT NOT NULL
+	CONSTRAINT positive_distance CHECK (flight_distance_m > 0),
+height_limit_m INT NOT NULL
+	CONSTRAINT positive_limiit CHECK (height_limit_m > 0),
+takeoff_distance_m INT NOT NULL
+	CONSTRAINT positive_takeoff CHECK (height_limit_m > 0)
+);
+
+CREATE TABLE fleet.plane_garbage(
+registration_number VARCHAR(10) NOT NULL PRIMARY KEY
+	CONSTRAINT not_empty_number CHECK(registration_number != ''),
+model VARCHAR(5) NOT NULL
+	CONSTRAINT not_empty_model CHECK(model != ''),
+manufacturer VARCHAR(128) NOT NULL
+	CONSTRAINT not_empty_manufacturer CHECK(manufacturer != ''),
+year_of_issue INT NOT NULL
+	CONSTRAINT normal_year CHECK (year_of_issue >= 1903 AND year_of_issue <= EXTRACT(YEAR FROM CURRENT_TIMESTAMP) ),
+owner VARCHAR(128) NOT NULL
+	CONSTRAINT not_empty_owner CHECK(owner != ''),
+status VARCHAR(32) NOT NULL
+	CONSTRAINT not_empty_status CHECK(status != ''),
+last_status_update TIMESTAMP
+);
+
+CREATE TABLE flight.flight_garbage(
+flight_id VARCHAR(16) NOT NULL PRIMARY KEY,
+plane_registration_number VARCHAR(10) NOT NULL,
+departure_point VARCHAR (64) NOT NULL,
+arrival_point VARCHAR (64) NOT NULL,
+departure_time_scheduled TIMESTAMP WITH TIME ZONE NOT NULL CONSTRAINT normal_time_schedule CHECK(EXTRACT(YEAR FROM departure_time_scheduled) >= 1903 ),
+departure_time_actual TIMESTAMP WITH TIME ZONE CONSTRAINT normal_time_actual CHECK(EXTRACT(YEAR FROM departure_time_scheduled) >= 1903 ),
+arrival_time_sheduled TIMESTAMP WITH TIME ZONE NOT NULL CONSTRAINT normal_arrival_schedule CHECK(arrival_time_sheduled > departure_time_scheduled),
+arrival_time_actual TIMESTAMP WITH TIME ZONE
+CONSTRAINT normal_arrival_actual CHECK(
+(arrival_time_actual IS NOT NULL AND departure_time_actual IS NOT NULL AND arrival_time_actual > departure_time_actual) OR (arrival_time_actual IS NULL OR departure_time_actual IS NULL)
+),
+terminal VARCHAR(5),
+gate VARCHAR(5),
+remark VARCHAR(64)
+);
+
+CREATE TABLE ticket.person_garbage(
+passport_id VARCHAR(15) NOT NULL PRIMARY KEY,
+last_name VARCHAR(64) NOT NULL,
+first_name VARCHAR(64) NOT NULL,
+father_name VARCHAR(64),
+date_of_birth DATE NOT NULL,
+sex VARCHAR(6) NOT NULL
+);
+
+CREATE TABLE ticket.ticket_garbage(
+etkt VARCHAR(20) NOT NULL PRIMARY KEY,
+plane_registration_number VARCHAR(10) NOT NULL,
+flight_id VARCHAR(16) NOT NULL,
+passport_id VARCHAR(15) NOT NULL,
+class VARCHAR (16) NOT NULL,
+price_$ NUMERIC(15,2) NOT NULL CONSTRAINT positive_price CHECK (price_$ >= 0),
+seat VARCHAR(5) NOT NULL
+);
+
+--Null check Function
+
+CREATE OR REPLACE FUNCTION service.empty_null_check(in text,in text) RETURNS void as $$
+BEGIN
+IF $1 IS NULL OR $2 IS NULL THEN
+        RAISE EXCEPTION 'Ни один из аргументов процедуры не может быть равен NULL!';
+ELSIF $1 = '' OR $2 = '' THEN
+	RAISE EXCEPTION 'Ни один из аргументов процедуры не может быть пуст!';
+END IF;
+END;
+$$ LANGUAGE plpgsql
+LEAKPROOF
+CALLED ON NULL INPUT
+STABLE;
+
+CREATE OR REPLACE FUNCTION service.empty_null_check(in text,in int) RETURNS void as $$
+BEGIN
+IF $1 IS NULL OR $2 IS NULL THEN
+        RAISE EXCEPTION 'Ни один из аргументов процедуры не может быть равен NULL!';
+ELSIF $1 = '' OR $2 < 0 THEN
+	RAISE EXCEPTION 'Ни один из аргументов процедуры не может быть пуст или быть меньше нуля!';
+END IF;
+END;
+$$ LANGUAGE plpgsql
+LEAKPROOF
+CALLED ON NULL INPUT
+STABLE;
+
+CREATE OR REPLACE FUNCTION service.empty_null_check(in text,in bigint) RETURNS void as $$
+BEGIN
+IF $1 IS NULL OR $2 IS NULL THEN
+        RAISE EXCEPTION 'Ни один из аргументов процедуры не может быть равен NULL!';
+ELSIF $1 = '' OR $2 < 0 THEN
+	RAISE EXCEPTION 'Ни один из аргументов процедуры не может быть пуст или быть меньше нуля!';
+END IF;
+END;
+$$ LANGUAGE plpgsql
+LEAKPROOF
+CALLED ON NULL INPUT
+STABLE;
+
+CREATE OR REPLACE FUNCTION service.empty_null_check(in text,in real) RETURNS void as $$
+BEGIN
+IF $1 IS NULL OR $2 IS NULL THEN
+        RAISE EXCEPTION 'Ни один из аргументов процедуры не может быть равен NULL!';
+ELSIF $1 = '' OR $2 < 0 THEN
+	RAISE EXCEPTION 'Ни один из аргументов процедуры не может быть пуст или быть меньше нуля!';
+END IF;
+END;
+$$ LANGUAGE plpgsql
+LEAKPROOF
+CALLED ON NULL INPUT
+STABLE;
+
+CREATE OR REPLACE FUNCTION service.empty_null_check(in text) RETURNS void as $$
+BEGIN
+IF $1 IS NULL THEN
+        RAISE EXCEPTION 'Ни один из аргументов процедуры не может быть равен NULL!';
+ELSIF $1 = '' THEN
+	RAISE EXCEPTION 'Ни один из аргументов процедуры не может быть пуст или быть меньше нуля!';
+END IF;
+END;
+$$ LANGUAGE plpgsql
+LEAKPROOF
+CALLED ON NULL INPUT
+STABLE;
+
+CREATE OR REPLACE FUNCTION service.empty_null_check(in text,in date) RETURNS void as $$
+BEGIN
+IF $1 IS NULL OR $2 IS NULL THEN
+        RAISE EXCEPTION 'Ни один из аргументов процедуры не может быть равен NULL!';
+ELSIF $1 = '' THEN
+	RAISE EXCEPTION 'Ни один из аргументов процедуры не может быть пуст!';
+END IF;
+END;
+$$ LANGUAGE plpgsql
+LEAKPROOF
+CALLED ON NULL INPUT
+STABLE;
+
+CREATE OR REPLACE FUNCTION service.empty_null_check(in text,in timestamptz) RETURNS void as $$
+BEGIN
+IF $1 IS NULL OR $2 IS NULL THEN
+        RAISE EXCEPTION 'Ни один из аргументов процедуры не может быть равен NULL!';
+ELSIF $1 = '' THEN
+	RAISE EXCEPTION 'Ни один из аргументов процедуры не может быть пуст!';
+END IF;
+END;
+$$ LANGUAGE plpgsql
+LEAKPROOF
+CALLED ON NULL INPUT
+STABLE;
+
+CREATE OR REPLACE FUNCTION service.empty_null_check(in text,numeric) RETURNS void as $$
+BEGIN
+IF $1 IS NULL OR $2 IS NULL THEN
+        RAISE EXCEPTION 'Ни один из аргументов процедуры не может быть равен NULL!';
+ELSIF $1 = '' OR $2 < 0 THEN
+	RAISE EXCEPTION 'Ни один из аргументов процедуры не может быть пуст или быть меньше нуля!';
+END IF;
+END;
+$$ LANGUAGE plpgsql
+LEAKPROOF
+CALLED ON NULL INPUT
+STABLE;
+
+
+
+--Plane model Procedures
+
+CREATE OR REPLACE PROCEDURE fleet.insert_plane_model(
+icao_code VARCHAR(5),
+model_name VARCHAR(64),
+plane_type VARCHAR(32),
+engine VARCHAR(64),
+crew INT,
+length_m REAL,
+wingspan_m REAL,
+height_m REAL,
+interior_width_m REAL,
+maximal_takeoff_weight_kg BIGINT,
+capacity_of_passengers INT,
+cruising_speed_km_per_h REAL,
+flight_distance_m INT,
+high_limit_m INT,
+takeoff_distance_m INT
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+IF plane_type != 'Passenger' THEN
+	capacity_of_passengers = NULL;
+END IF;
+INSERT INTO plane_model VALUES (icao_code,model_name,plane_type,engine,crew,length_m,wingspan_m,height_m,interior_width_m,maximal_takeoff_weight_kg,capacity_of_passengers,cruising_speed_km_per_h,flight_distance_m,high_limit_m,takeoff_distance_m);
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE fleet.update_model_name(code VARCHAR(5),new_name VARCHAR(64))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_name);
+
+IF EXISTS(SELECT 1 FROM plane_model WHERE icao_code = code) THEN
+	UPDATE plane_model SET model_name = new_name WHERE icao_code = code;
+	RAISE NOTICE 'Update model_name finished.';
+ELSE
+	RAISE EXCEPTION 'Модели с таким кодом не существует!';
+END IF;
+
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE fleet.update_plane_type(code VARCHAR(5),new_plane_type VARCHAR(32))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_plane_type);
+
+IF EXISTS(SELECT 1 FROM plane_model WHERE icao_code = code) THEN
+	UPDATE plane_model SET plane_type = new_plane_type WHERE icao_code = code;
+	IF new_plane_type != 'Passenger' THEN
+		UPDATE plane_model SET capacity_of_passengers = NULL WHERE icao_code = code;
+	END IF;
+	RAISE NOTICE 'Update plane_type finished.';
+ELSE
+	RAISE EXCEPTION 'Модели с таким кодом не существует!';
+END IF;
+
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE fleet.update_engine(code VARCHAR(5),new_engine VARCHAR(64))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_engine);
+
+IF EXISTS(SELECT 1 FROM plane_model WHERE icao_code = code) THEN
+	UPDATE plane_model SET engine = new_engine WHERE icao_code = code;
+	RAISE NOTICE 'Update engine finished.';
+ELSE
+	RAISE EXCEPTION 'Модели с таким кодом не существует!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE fleet.update_crew(code VARCHAR(5),new_crew INT)
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_crew);
+
+IF EXISTS(SELECT 1 FROM plane_model WHERE icao_code = code) THEN
+	UPDATE plane_model SET crew = new_crew WHERE icao_code = code;
+	RAISE NOTICE 'Update crew finished.';
+ELSE
+	RAISE EXCEPTION 'Модели с таким кодом не существует!';
+END IF;
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE fleet.update_gabarites(
+code VARCHAR(5),
+new_length REAL,
+new_wingspan REAL,
+new_height REAL,
+new_interior_width REAL
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_length);
+PERFORM empty_null_check(code,new_wingspan);
+PERFORM empty_null_check(code,new_height);
+PERFORM empty_null_check(code,new_interior_width);
+
+IF EXISTS(SELECT 1 FROM plane_model WHERE icao_code = code) THEN
+	UPDATE plane_model SET length_m = new_length, wingspan_m = new_wingspan, height_m = new_height, interior_width_m = new_interior_width  WHERE icao_code = code;
+	RAISE NOTICE 'Update gabarites finished.';
+ELSE
+	RAISE EXCEPTION 'Модели с таким кодом не существует!';
+END IF;
+
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE fleet.update_takeoff_weight(code VARCHAR(5),new_weight BIGINT)
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_weight);
+
+IF EXISTS(SELECT 1 FROM plane_model WHERE icao_code = code) THEN
+	UPDATE plane_model SET maximal_takeoff_weight_kg = new_weight WHERE icao_code = code;
+	RAISE NOTICE 'Update weight finished.';
+ELSE
+	RAISE EXCEPTION 'Модели с таким кодом не существует!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE fleet.update_capacity_of_passengers(code VARCHAR(5),new_capacity_of_passengers INT)
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code);
+
+IF EXISTS(SELECT 1 FROM plane_model WHERE icao_code = code) THEN
+	RAISE NOTICE 'Число пассажиров можно указать только для пассажирского самолета!';
+	UPDATE plane_model SET capacity_of_passengers = new_capacity_of_passengers WHERE icao_code = code AND plane_type = 'Passenger';
+	RAISE NOTICE 'Update capacity_of_passengers finished.';
+ELSE
+	RAISE EXCEPTION 'Модели с таким кодом не существует!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE fleet.update_cruising_speed(code VARCHAR(5),new_cruising_speed REAL)
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_cruising_speed);
+
+IF EXISTS(SELECT 1 FROM plane_model WHERE icao_code = code) THEN
+	UPDATE plane_model SET cruising_speed_km_per_h = new_cruising_speed WHERE icao_code = code;
+	RAISE NOTICE 'Update cruising_speed finished.';
+ELSE
+	RAISE EXCEPTION 'Модели с таким кодом не существует!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE fleet.update_flight_distance(code VARCHAR(5),new_flight_distance INT)
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_flight_distance);
+
+IF EXISTS(SELECT 1 FROM plane_model WHERE icao_code = code) THEN
+	UPDATE plane_model SET flight_distance_m = new_flight_distance WHERE icao_code = code;
+	RAISE NOTICE 'Update flight_distance finished.';
+ELSE
+	RAISE EXCEPTION 'Модели с таким кодом не существует!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE fleet.update_height_limit(code VARCHAR(5),new_height_limit INT)
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_height_limit);
+
+IF EXISTS(SELECT 1 FROM plane_model WHERE icao_code = code) THEN
+	UPDATE plane_model SET height_limit_m = new_height_limit WHERE icao_code = code;
+	RAISE NOTICE 'Update height_limit finished.';
+ELSE
+	RAISE EXCEPTION 'Модели с таким кодом не существует!';
+END IF;
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE fleet.update_takeoff_distance(code VARCHAR(5),new_takeoff_distance INT)
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_takeoff_distance);
+
+IF EXISTS(SELECT 1 FROM plane_model WHERE icao_code = code) THEN
+	UPDATE plane_model SET takeoff_distance_m = new_takeoff_distance WHERE icao_code = code;
+	RAISE NOTICE 'Update takeoff_distance finished.';
+ELSE
+	RAISE EXCEPTION 'Модели с таким кодом не существует!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE fleet.update_model(
+code VARCHAR(5),
+new_model_name VARCHAR(64),
+new_plane_type VARCHAR(32),
+new_engine VARCHAR(64),
+new_crew INT,
+new_length REAL,
+new_wingspan REAL,
+new_height REAL,
+new_interior_width REAL,
+new_maximal_takeoff_weight BIGINT,
+new_capacity_of_passengers INT,
+new_cruising_speed REAL,
+new_flight_distance INT,
+new_height_limit INT,
+new_takeoff_distance INT
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+
+IF EXISTS(SELECT 1 FROM plane_model WHERE icao_code = code) THEN
+RAISE NOTICE 'Updating model_name...';
+	CALL update_model_name(code,new_model_name);
+RAISE NOTICE 'Updating plane_type...';
+	CALL update_plane_type(code,new_plane_type);
+RAISE NOTICE 'Updating engine...';
+	CALL update_engine(code,new_engine);
+RAISE NOTICE 'Updating crew...';
+	CALL update_crew(code,new_crew);
+RAISE NOTICE 'Updating gabarites...';
+	CALL update_gabarites(code,new_length,new_wingspan,new_height,new_interior_width);
+RAISE NOTICE 'Updating takeoff_weight...';
+	CALL update_takeoff_weight(code,new_maximal_takeoff_weight);
+RAISE NOTICE 'Updating capacity_of_passengers...';
+	CALL update_capacity_of_passengers(code,new_capacity_of_passengers);
+RAISE NOTICE 'Updating cruising_speed...';
+	CALL update_cruising_speed(code,new_cruising_speed);
+RAISE NOTICE 'Updating flight_distance...';
+	CALL update_flight_distance(code,new_flight_distance);
+RAISE NOTICE 'Updating height_limit...';
+	CALL update_height_limit(code,new_height_limit);
+RAISE NOTICE 'Updating takeoff_distance...';
+	CALL update_takeoff_distance(code,new_takeoff_distance);
+ELSE
+	RAISE EXCEPTION 'Модели с таким кодом не существует!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE fleet.delete_model(model_code VARCHAR(5))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(model_code);
+
+IF EXISTS(SELECT 1 FROM plane_model WHERE icao_code = model_code) THEN
+	RAISE NOTICE 'Также будут удалены все самолеты этой модели';
+	CALL service.cascade_delete_plane(model_code);
+	INSERT INTO fleet.plane_model_garbage SELECT * FROM plane_model WHERE icao_code = model_code;
+	DELETE FROM plane_model WHERE icao_code = model_code;
+ELSE
+	RAISE EXCEPTION 'Модели с таким кодом нет в базе данных!';
+END IF;
+END;
+$$;
+
+--plane procedures
+
+CREATE PROCEDURE fleet.insert_plane(
+registration_number VARCHAR(10),
+model VARCHAR(5),
+manufacturer VARCHAR(128),
+year_of_issue INT,
+owner VARCHAR(128),
+status VARCHAR(32)
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+INSERT INTO plane VALUES (registration_number,model,manufacturer,year_of_issue,owner,status);
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE fleet.update_plane_model(code VARCHAR(10),new_name VARCHAR(5))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_name);
+
+IF EXISTS(SELECT 1 FROM plane WHERE registration_number = code) THEN
+	UPDATE plane SET model = new_name WHERE registration_number = code;
+	RAISE NOTICE 'Update model_name finished.';
+ELSE
+	RAISE EXCEPTION 'Самолета с таким номером нет в базе данных!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE fleet.update_plane_manufacturer(code VARCHAR(10),new_manufacturer VARCHAR(128))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_manufacturer);
+
+IF EXISTS(SELECT 1 FROM plane WHERE registration_number = code) THEN
+	UPDATE plane SET manufacturer = new_manufacturer WHERE registration_number = code;
+	RAISE NOTICE 'Update manufacturer finished.';
+ELSE
+	RAISE EXCEPTION 'Самолета с таким номером нет в базе данных!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE fleet.update_year_of_issue(code VARCHAR(10),new_year INT)
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_year);
+
+IF new_year < 1903 AND new_year > EXTRACT(YEAR FROM CURRENT_TIMESTAMP) THEN
+	RAISE EXCEPTION 'Недопустимый год выпуска!';
+END IF;
+
+IF EXISTS(SELECT 1 FROM plane WHERE registration_number = code) THEN
+	UPDATE plane SET year_of_issue = new_year WHERE registration_number = code;
+	RAISE NOTICE 'Update year_of_issue finished.';
+ELSE
+	RAISE EXCEPTION 'Самолета с таким номером нет в базе данных!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE fleet.update_owner(code VARCHAR(10),new_owner VARCHAR(128))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_owner);
+
+IF EXISTS(SELECT 1 FROM plane WHERE registration_number = code) THEN
+	UPDATE plane SET owner = new_owner WHERE registration_number = code;
+	RAISE NOTICE 'Update owner finished.';
+ELSE
+	RAISE EXCEPTION 'Самолета с таким номером нет в базе данных!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE fleet.update_status(code VARCHAR(10),new_status VARCHAR(32))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_status);
+
+IF EXISTS(SELECT 1 FROM plane WHERE registration_number = code) THEN
+	UPDATE plane SET status = new_status WHERE registration_number = code;
+	RAISE NOTICE 'Update status finished.';
+ELSE
+	RAISE EXCEPTION 'Самолета с таким номером нет в базе данных!';
+END IF;
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE fleet.update_plane(
+code VARCHAR(10),
+new_model VARCHAR(5),
+new_manufacturer VARCHAR(128),
+new_year_of_issue INT,
+new_owner VARCHAR(128),
+new_status VARCHAR(32)
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+IF EXISTS(SELECT 1 FROM plane WHERE registration_number = code) THEN
+
+RAISE NOTICE 'Updating model...';
+	CALL fleet.update_plane_model(code,new_model);
+RAISE NOTICE 'Updating manufacturer...';
+	CALL fleet.update_plane_manufacturer(code,new_manufacturer);
+RAISE NOTICE 'Updating year_of_issue...';
+	CALL fleet.update_year_of_issue(code,new_year_of_issue);
+RAISE NOTICE 'Updating owner...';
+	CALL fleet.update_owner(code,new_owner);
+RAISE NOTICE 'Updating status...';
+	CALL fleet.update_status(code,new_status);
+ELSE
+	RAISE EXCEPTION 'Самолета с таким номером нет в базе данных!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE fleet.curs_update_plane(
+    	reg_number VARCHAR(10),
+	new_model VARCHAR(5),
+    	new_manufacturer VARCHAR(128),
+	new_year_of_issue INT,
+	new_owner VARCHAR(128),
+	new_status VARCHAR(32)
+)
+LANGUAGE plpgsql AS $$
+DECLARE
+	curs_update_plane CURSOR FOR SELECT * FROM plane;
+	registration_number VARCHAR(10);
+	model VARCHAR(5);
+	manufacturer VARCHAR(128);
+	year_of_issue INT;
+	owner VARCHAR(128);
+	status VARCHAR(32);
+
+BEGIN
+
+OPEN curs_update_plane;
+LOOP
+	FETCH curs_update_plane INTO registration_number,model,manufacturer,year_of_issue,owner,status;
+	IF NOT FOUND THEN EXIT;
+	END IF;
+	IF (registration_number = reg_number) THEN
+		UPDATE plane SET model = new_model WHERE CURRENT OF curs_update_plane;
+		UPDATE plane SET manufacturer = new_manufacturer WHERE CURRENT OF curs_update_plane;
+		UPDATE plane SET year_of_issue = new_year_of_issue WHERE CURRENT OF curs_update_plane;
+		UPDATE plane SET owner = new_owner WHERE CURRENT OF curs_update_plane;
+		UPDATE plane SET status = new_status WHERE CURRENT OF curs_update_plane;
+	END IF;
+
+END LOOP;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION fleet.upd_stamp() RETURNS trigger AS $upd_stamp$
+BEGIN
+NEW.last_status_update = CURRENT_TIMESTAMP;
+RETURN NEW;
+END;
+$upd_stamp$ LANGUAGE plpgsql;
+
+CREATE TRIGGER upd_stamp BEFORE INSERT OR UPDATE of status ON plane
+FOR EACH ROW EXECUTE PROCEDURE upd_stamp();
+
+CREATE OR REPLACE PROCEDURE fleet.update_reliability(model VARCHAR(5),year INT)
+LANGUAGE plpgsql AS $$
+DECLARE
+plane_arr VARCHAR (10)[];
+BEGIN
+plane_arr = ARRAY(SELECT reg_number FROM show_all_old_planes_of_model(model,year));
+UPDATE plane SET status = 'Need full inspection' WHERE registration_number = ANY(plane_arr);
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE fleet.delete_plane(code VARCHAR(10))
+LANGUAGE plpgsql AS $$
+DECLARE
+plane_arr VARCHAR(10)[];
+BEGIN
+
+PERFORM empty_null_check(code);
+
+IF EXISTS(SELECT 1 FROM plane WHERE registration_number = code) THEN
+	RAISE NOTICE 'Также будут удалены все рейсы этого самолета';
+	plane_arr = ARRAY(SELECT plane.registration_number FROM plane WHERE registration_number = code);
+	CALL service.cascade_delete_flight(plane_arr);
+	INSERT INTO fleet.plane_garbage SELECT * FROM plane WHERE registration_number = code;
+	DELETE FROM plane WHERE registration_number = code;
+ELSE
+	RAISE NOTICE 'Самолетов такой модели нет в базе данных!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE service.cascade_delete_plane(model_code VARCHAR(5))
+LANGUAGE plpgsql AS $$
+DECLARE
+plane_arr VARCHAR(10)[];
+BEGIN
+
+IF EXISTS(SELECT 1 FROM plane WHERE model = model_code) THEN
+	RAISE NOTICE 'Также будут удалены все рейсы этого самолета';
+	plane_arr = ARRAY(SELECT plane.registration_number FROM plane WHERE model = model_code);
+	CALL service.cascade_delete_flight(plane_arr);
+	INSERT INTO fleet.plane_garbage SELECT * FROM plane WHERE model = model_code;
+	DELETE FROM plane WHERE model = model_code;
+ELSE
+	RAISE NOTICE 'Самолетов такой модели нет в базе данных!';
+END IF;
+END;
+$$;
+
+--flight version
+
+CREATE OR REPLACE PROCEDURE flight.insert_flight(
+flight_id VARCHAR(16),
+plane_registration_number VARCHAR(10),
+departure_point VARCHAR (64),
+arrival_point VARCHAR (64),
+departure_time_scheduled TIMESTAMP WITH TIME ZONE,
+departure_time_actual TIMESTAMP WITH TIME ZONE,
+arrival_time_sheduled TIMESTAMP WITH TIME ZONE,
+arrival_time_actual TIMESTAMP WITH TIME ZONE,
+terminal VARCHAR(5),
+gate VARCHAR(5),
+remark VARCHAR(64)
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+INSERT INTO flight VALUES (flight_id,plane_registration_number,departure_point,arrival_point,departure_time_scheduled,departure_time_actual,arrival_time_sheduled,arrival_time_actual,terminal,gate,remark);
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE flight.update_plane_registration_number(code VARCHAR(16),new_plane_registration_number VARCHAR(10))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_plane_registration_number);
+
+IF EXISTS(SELECT 1 FROM flight WHERE flight_id = code) THEN
+	UPDATE flight SET plane_registration_number = new_plane_registration_number WHERE flight_id = code;
+	RAISE NOTICE 'Update plane_registration_number finished.';
+ELSE
+	RAISE EXCEPTION 'Рейса с таким номером нет в базе данных!';
+END IF;
+
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE flight.update_departure_point(code VARCHAR(16),new_departure_point VARCHAR (64))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_departure_point);
+
+IF EXISTS(SELECT 1 FROM flight WHERE flight_id = code) THEN
+	UPDATE flight SET departure_point = new_departure_point WHERE flight_id = code;
+	RAISE NOTICE 'Update departure_point finished.';
+ELSE
+	RAISE EXCEPTION 'Рейса с таким номером нет в базе данных!';
+END IF;
+
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE flight.update_arrival_point(code VARCHAR(16),new_arrival_point VARCHAR (64))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_arrival_point);
+
+IF EXISTS(SELECT 1 FROM flight WHERE flight_id = code) THEN
+	UPDATE flight SET arrival_point = new_arrival_point WHERE flight_id = code;
+	RAISE NOTICE 'Update arrival_point finished.';
+ELSE
+	RAISE EXCEPTION 'Рейса с таким номером нет в базе данных!';
+END IF;
+
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE flight.update_departure_time_scheduled(code VARCHAR(16),new_departure_time_scheduled TIMESTAMP WITH TIME ZONE)
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_departure_time_scheduled);
+
+IF EXISTS(SELECT 1 FROM flight WHERE flight_id = code) THEN
+	UPDATE flight SET departure_time_scheduled = new_departure_time_scheduled WHERE flight_id = code;
+	RAISE NOTICE 'Update departure_time_scheduled finished.';
+ELSE
+	RAISE EXCEPTION 'Рейса с таким номером нет в базе данных!';
+END IF;
+
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE flight.update_departure_time_actual(code VARCHAR(16),new_departure_time_actual TIMESTAMP WITH TIME ZONE)
+LANGUAGE plpgsql AS $$
+BEGIN
+
+IF EXISTS(SELECT 1 FROM flight WHERE flight_id = code) THEN
+	UPDATE flight SET departure_time_actual = new_departure_time_actual WHERE flight_id = code;
+	RAISE NOTICE 'Update departure_time_actual finished.';
+ELSE
+	RAISE EXCEPTION 'Рейса с таким номером нет в базе данных!';
+END IF;
+
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE flight.update_arrival_time_scheduled(code VARCHAR(16),new_arrival_time_scheduled TIMESTAMP WITH TIME ZONE)
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_arrival_time_scheduled);
+
+IF EXISTS(SELECT 1 FROM flight WHERE flight_id = code) THEN
+	UPDATE flight SET arrival_time_scheduled = new_arrival_time_scheduled WHERE flight_id = code;
+	RAISE NOTICE 'Update arrival_time_sheduled finished.';
+ELSE
+	RAISE EXCEPTION 'Рейса с таким номером нет в базе данных!';
+END IF;
+
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE flight.update_arrival_time_actual(code VARCHAR(16),new_arrival_time_actual TIMESTAMP WITH TIME ZONE)
+LANGUAGE plpgsql AS $$
+BEGIN
+
+IF EXISTS(SELECT 1 FROM flight WHERE flight_id = code) THEN
+	UPDATE flight SET arrival_time_actual = new_arrival_time_actual WHERE flight_id = code;
+	RAISE NOTICE 'Update arrival_time_actual finished.';
+ELSE
+	RAISE EXCEPTION 'Рейса с таким номером нет в базе данных!';
+END IF;
+
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE flight.update_terminal(code VARCHAR(16),new_terminal VARCHAR(5))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+IF EXISTS(SELECT 1 FROM flight WHERE flight_id = code) THEN
+	UPDATE flight SET terminal = new_terminal WHERE flight_id = code;
+	RAISE NOTICE 'Update terminal finished.';
+ELSE
+	RAISE EXCEPTION 'Рейса с таким номером нет в базе данных!';
+END IF;
+
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE flight.update_gate(code VARCHAR(16),new_gate VARCHAR(5))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+IF EXISTS(SELECT 1 FROM flight WHERE flight_id = code) THEN
+	UPDATE flight SET gate = new_gate WHERE flight_id = code;
+	RAISE NOTICE 'Update gate finished.';
+ELSE
+	RAISE EXCEPTION 'Рейса с таким номером нет в базе данных!';
+END IF;
+
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE flight.update_remark(code VARCHAR(16),new_remark VARCHAR(64))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+IF EXISTS(SELECT 1 FROM flight WHERE flight_id = code) THEN
+	UPDATE flight SET remark = new_remark WHERE flight_id = code;
+	RAISE NOTICE 'Update remark finished.';
+ELSE
+	RAISE EXCEPTION 'Рейса с таким номером нет в базе данных!';
+END IF;
+
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE flight.update_flight(
+code VARCHAR(16),
+new_plane_registration_number VARCHAR(10),
+new_departure_point VARCHAR (64),
+new_arrival_point VARCHAR (64),
+new_departure_time_scheduled TIMESTAMP WITH TIME ZONE,
+new_departure_time_actual TIMESTAMP WITH TIME ZONE,
+new_arrival_time_scheduled TIMESTAMP WITH TIME ZONE,
+new_arrival_time_actual TIMESTAMP WITH TIME ZONE,
+new_terminal VARCHAR(5),
+new_gate VARCHAR(5),
+new_remark VARCHAR(64)
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+IF EXISTS(SELECT 1 FROM flight WHERE flight_id = code) THEN
+RAISE NOTICE 'Updating plane_registration_number...';
+	CALL flight.update_plane_registration_number(code,new_plane_registration_number);
+RAISE NOTICE 'Updating departure_point...';
+	CALL flight.update_departure_point(code,new_departure_point);
+RAISE NOTICE 'Updating arrival_point...';
+	CALL flight.update_arrival_point(code,new_arrival_point);
+RAISE NOTICE 'Updating departure_time_scheduled...';
+	CALL flight.update_departure_time_scheduled(code,new_departure_time_scheduled);
+RAISE NOTICE 'Updating departure_time_actual...';
+	CALL flight.update_departure_time_actual(code,new_departure_time_actual);
+RAISE NOTICE 'Updating arrival_time_sheduled...';
+	CALL flight.update_arrival_time_scheduled(code,new_arrival_time_scheduled);
+RAISE NOTICE 'Updating arrival_time_actual...';
+	CALL flight.update_arrival_time_actual(code,new_arrival_time_actual);
+RAISE NOTICE 'Updating terminal...';
+	CALL flight.update_terminal(code,new_terminal);
+RAISE NOTICE 'Updating gate...';
+	CALL flight.update_gate(code,new_gate);
+RAISE NOTICE 'Updating remark...';
+	CALL flight.update_remark(code,new_remark);
+ELSE
+	RAISE EXCEPTION 'Рейса с таким номером нет в базе данных!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE flight.delete_flight(code VARCHAR(16))
+LANGUAGE plpgsql AS $$
+DECLARE
+flight_arr VARCHAR(16)[];
+BEGIN
+
+PERFORM empty_null_check(code);
+
+IF EXISTS(SELECT 1 FROM flight WHERE flight_id = code) THEN
+	RAISE NOTICE 'Также будут удалены все билеты на этот рейс';
+	flight_arr = ARRAY(SELECT flight.flight_id FROM flight WHERE flight_id = code);
+	CALL service.cascade_delete_ticket_from_flight(flight_arr);
+	INSERT INTO flight.flight_garbage SELECT * FROM flight WHERE flight_id = code;
+	DELETE FROM flight WHERE flight_id = code;
+ELSE
+	RAISE EXCEPTION 'Рейса с таким кодом нет в базе данных!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE service.cascade_delete_flight(plane_arr VARCHAR(10)[])
+LANGUAGE plpgsql AS $$
+DECLARE
+flight_arr VARCHAR(16)[];
+BEGIN
+
+IF EXISTS(SELECT 1 FROM flight WHERE plane_registration_number = ANY(plane_arr)) THEN
+	RAISE NOTICE 'Также будут удалены все билеты на этот рейс';
+	flight_arr = ARRAY(SELECT flight.flight_id FROM flight WHERE plane_registration_number = ANY(plane_arr));
+	CALL service.cascade_delete_ticket_from_flight(flight_arr);
+	INSERT INTO flight.flight_garbage SELECT * FROM flight WHERE plane_registration_number = ANY(plane_arr);
+	DELETE FROM flight WHERE plane_registration_number = ANY(plane_arr);
+ELSE
+	RAISE NOTICE 'Рейсов на самолет/самолеты нет в базе данных!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE ticket.insert_ticket(
+new_etkt VARCHAR(20),
+new_plane_registration_number VARCHAR(10),
+new_flight_id VARCHAR(16),
+new_passport_id VARCHAR(15),
+new_class VARCHAR (16),
+new_price_$ NUMERIC(15,2),
+new_seat VARCHAR(5)
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+
+IF EXISTS(SELECT 1 FROM ticket WHERE flight_id = new_flight_id AND seat = new_seat) THEN
+	RAISE EXCEPTION 'Место занято!' ;
+END IF;
+
+INSERT INTO ticket VALUES (new_etkt,new_plane_registration_number,new_flight_id,new_passport_id,new_class,new_price_$,new_seat);
+
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE ticket.update_plane_registration_number(code VARCHAR(20),new_plane_registration_number VARCHAR(10))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_plane_registration_number);
+
+IF EXISTS(SELECT 1 FROM ticket WHERE etkt = code) THEN
+	UPDATE ticket SET plane_registration_number = new_plane_registration_number WHERE etkt = code;
+	RAISE NOTICE 'Update plane_registration_number finished.';
+ELSE
+	RAISE EXCEPTION 'Билета с таким номером нет в базе данных!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE ticket.update_flight_id(code VARCHAR(20),new_flight_id VARCHAR(16))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_flight_id);
+
+IF EXISTS(SELECT 1 FROM ticket WHERE etkt = code) THEN
+	UPDATE ticket SET flight_id = new_flight_id WHERE etkt = code;
+	RAISE NOTICE 'Update flight_id finished.';
+ELSE
+	RAISE EXCEPTION 'Билета с таким номером нет в базе данных!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE ticket.update_passport_id(code VARCHAR(20),new_passport_id VARCHAR(15))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_passport_id);
+
+IF EXISTS(SELECT 1 FROM ticket WHERE etkt = code) THEN
+	UPDATE ticket SET passport_id = new_passport_id WHERE etkt = code;
+	RAISE NOTICE 'Update passport_id finished.';
+ELSE
+	RAISE EXCEPTION 'Билета с таким номером нет в базе данных!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE ticket.update_class(code VARCHAR(20),new_class VARCHAR (16))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_class);
+
+IF EXISTS(SELECT 1 FROM ticket WHERE etkt = code) THEN
+	UPDATE ticket SET class = new_class WHERE etkt = code;
+	RAISE NOTICE 'Update class finished.';
+ELSE
+	RAISE EXCEPTION 'Билета с таким номером нет в базе данных!';
+END IF;
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE ticket.update_price(code VARCHAR(20),new_price_$ NUMERIC(15,2))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code,new_price_$);
+
+IF EXISTS(SELECT 1 FROM ticket WHERE etkt = code) THEN
+	UPDATE ticket SET price_$ = new_price_$ WHERE etkt = code;
+	RAISE NOTICE 'Update price finished.';
+ELSE
+	RAISE EXCEPTION 'Билета с таким номером нет в базе данных!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE ticket.update_seat(code VARCHAR(20),new_seat VARCHAR(5))
+LANGUAGE plpgsql AS $$
+DECLARE
+cur_flight_id VARCHAR(15);
+BEGIN
+
+PERFORM empty_null_check(code,new_seat);
+
+cur_flight_id = (SELECT flight_id FROM ticket WHERE etkt = code);
+
+IF EXISTS(SELECT 1 FROM ticket WHERE seat = new_seat AND flight_id = cur_flight_id
+AND code = ANY(SELECT etkt FROM ticket WHERE seat = new_seat AND flight_id = cur_flight_id AND etkt <> code)) THEN
+	RAISE EXCEPTION 'Место занято!' ;
+END IF;
+
+IF EXISTS(SELECT 1 FROM ticket WHERE etkt = code) THEN
+	UPDATE ticket SET seat = new_seat WHERE etkt = code;
+	RAISE NOTICE 'Update seat finished.';
+ELSE
+	RAISE EXCEPTION 'Билета с таким номером нет в базе данных!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE ticket.update_ticket(
+code VARCHAR(20),
+new_plane_registration_number VARCHAR(10),
+new_flight_id VARCHAR(16),
+new_passport_id VARCHAR(15),
+new_class VARCHAR (16),
+new_price_$ NUMERIC(15,2),
+new_seat VARCHAR(5)
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+IF EXISTS(SELECT 1 FROM ticket WHERE etkt = code) THEN
+RAISE NOTICE 'Updating plane_registration_number...';
+	CALL ticket.update_plane_registration_number(code,new_plane_registration_number);
+RAISE NOTICE 'Updating flight_id...';
+	CALL ticket.update_flight_id(code,new_flight_id);
+RAISE NOTICE 'Updating passport_id...';
+	CALL ticket.update_passport_id(code,new_passport_id);
+RAISE NOTICE 'Updating class...';
+	CALL ticket.update_class(code,new_class);
+RAISE NOTICE 'Updating price_$...';
+	CALL ticket.update_price(code,new_price_$);
+RAISE NOTICE 'Updating seat...';
+	CALL ticket.update_seat(code,new_seat);
+ELSE
+	RAISE EXCEPTION 'Билета с таким номером нет в базе данных!';
+END IF;
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE ticket.delete_ticket(code VARCHAR(20))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(code);
+
+IF EXISTS(SELECT 1 FROM ticket WHERE etkt = code) THEN
+	INSERT INTO ticket.ticket_garbage SELECT * FROM ticket WHERE etkt = code;
+	DELETE FROM ticket WHERE etkt = code;
+ELSE
+	RAISE EXCEPTION 'Билетов на такой/такие рейс/рейсы нет в базе данных!';
+END IF;
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE service.cascade_delete_ticket_from_flight(flight_arr VARCHAR(16)[])
+LANGUAGE plpgsql AS $$
+BEGIN
+
+IF EXISTS(SELECT 1 FROM ticket WHERE flight_id = ANY(flight_arr)) THEN
+	INSERT INTO ticket.ticket_garbage SELECT * FROM ticket WHERE flight_id = ANY(flight_arr);
+	DELETE FROM ticket WHERE flight_id = ANY(flight_arr);
+ELSE
+	RAISE NOTICE 'Билетов на такой/такие рейс/рейсы нет в базе данных!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE service.cascade_delete_ticket_from_person(id VARCHAR(15))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+IF EXISTS(SELECT 1 FROM ticket WHERE passport_id = id) THEN
+	INSERT INTO ticket.ticket_garbage SELECT * FROM ticket WHERE passport_id = id;
+	DELETE FROM ticket WHERE passport_id = id;
+ELSE
+	RAISE NOTICE 'Билетов на такой/такие рейс/рейсы нет в базе данных!';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE ticket.change_ticket(code VARCHAR(20),new_code VARCHAR(20),new_flight VARCHAR(16),new_seat VARCHAR(5))
+LANGUAGE plpgsql AS $$
+DECLARE
+new_plane_number VARCHAR (10);
+old_plane_number VARCHAR(10);
+old_owner VARCHAR(128);
+new_owner VARCHAR(128);
+old_passport_id VARCHAR(15);
+old_class VARCHAR(16);
+old_price NUMERIC(15,2);
+BEGIN
+
+PERFORM empty_null_check(code,new_flight);
+PERFORM empty_null_check(new_code);
+PERFORM empty_null_check(new_seat);
+
+IF EXISTS(SELECT 1 FROM ticket WHERE etkt = code) AND
+EXISTS(SELECT 1 FROM flight WHERE flight_id = new_flight) THEN
+	new_plane_number = (SELECT plane_registration_number FROM flight WHERE flight_id = new_flight);
+	old_plane_number = (SELECT plane_registration_number FROM ticket WHERE etkt = code);
+	old_owner = (SELECT owner FROM plane WHERE registration_number = old_plane_number);
+	new_owner = (SELECT owner FROM plane WHERE registration_number = new_plane_number);
+	old_passport_id = (SELECT passport_id FROM ticket WHERE etkt = code);
+	old_class = (SELECT class FROM ticket WHERE etkt = code);
+	old_price = (SELECT price_$ FROM ticket WHERE etkt = code);
+
+	IF EXISTS(SELECT 1 FROM ticket WHERE flight_id = new_flight AND seat = new_seat) THEN
+		RAISE EXCEPTION 'Это место занято!';
+	END IF;
+
+	CALL delete_ticket(code);
+	CALL insert_ticket(new_code,new_plane_number,new_flight,old_passport_id,old_class,old_price,new_seat);
+
+
+	IF (old_owner <> new_owner) THEN
+		ROLLBACK;
+		RAISE EXCEPTION 'Нельзя взять билет на рейс другой авиакомпании';
+	END IF;
+ELSE
+	RAISE EXCEPTION 'Билета с таким номером или рейса с таким номером нет';
+END IF;
+
+COMMIT;
+END;
+$$;
+
+--person procedures
+
+CREATE OR REPLACE PROCEDURE ticket.insert_person(
+passport_id VARCHAR(15),
+last_name VARCHAR(64),
+first_name VARCHAR(64),
+father_name VARCHAR(64),
+date_of_birth DATE,
+sex VARCHAR(6)
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+INSERT INTO person VALUES (passport_id,last_name,first_name,father_name,date_of_birth,sex);
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE ticket.update_last_name(id VARCHAR(15),new_last_name VARCHAR(64))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(id,new_last_name);
+
+IF EXISTS(SELECT 1 FROM person WHERE passport_id = id) THEN
+	UPDATE person SET last_name = new_last_name WHERE passport_id = id;
+	RAISE NOTICE 'Update last_name finished.';
+ELSE
+	RAISE EXCEPTION 'Человека с таким номером паспорта не существует';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE ticket.update_first_name(id VARCHAR(15),new_first_name VARCHAR(64))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(id,new_first_name);
+
+IF EXISTS(SELECT 1 FROM person WHERE passport_id = id) THEN
+	UPDATE person SET first_name = new_first_name WHERE passport_id = id;
+	RAISE NOTICE 'Update first_name finished.';
+ELSE
+	RAISE EXCEPTION 'Человека с таким номером паспорта не существует';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE ticket.update_father_name(
+id VARCHAR(15),
+new_father_name VARCHAR(64)
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+
+IF EXISTS(SELECT 1 FROM person WHERE passport_id = id) THEN
+	UPDATE person SET father_name = new_father_name WHERE passport_id = id;
+	RAISE NOTICE 'Update father_name finished.';
+ELSE
+	RAISE EXCEPTION 'Человека с таким номером паспорта не существует';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE ticket.update_date_of_birth(id VARCHAR(15),new_date_of_birth DATE)
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(id,new_date_of_birth);
+
+IF new_date_of_birth < '1800-01-01' AND new_date_of_birth  > CURRENT_DATE THEN
+	RAISE EXCEPTION 'Недопустимая дата рождения';
+END IF;
+
+IF EXISTS(SELECT 1 FROM person WHERE passport_id = id) THEN
+	UPDATE person SET date_of_birth = new_date_of_birth WHERE passport_id = id;
+	RAISE NOTICE 'Update date_of_birth finished.';
+ELSE
+	RAISE EXCEPTION 'Человека с таким номером паспорта не существует';
+END IF;
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE ticket.update_sex(id VARCHAR(15),new_sex VARCHAR(64))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(id,new_sex);
+
+IF EXISTS(SELECT 1 FROM person WHERE passport_id = id) THEN
+	UPDATE person SET sex = new_sex WHERE passport_id = id;
+	RAISE NOTICE 'Update sex finished.';
+ELSE
+	RAISE EXCEPTION 'Человека с таким номером паспорта не существует';
+END IF;
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE ticket.update_person(
+id VARCHAR(15),
+new_last_name VARCHAR(64),
+new_first_name VARCHAR(64),
+new_father_name VARCHAR(64),
+new_date_of_birth DATE,
+new_sex VARCHAR(6)
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+IF EXISTS(SELECT 1 FROM person WHERE passport_id = id) THEN
+RAISE NOTICE 'Updating last_name...';
+	CALL update_last_name(id,new_last_name);
+RAISE NOTICE 'Updating first_name...';
+	CALL update_first_name(id,new_first_name);
+RAISE NOTICE 'Updating year_of_issue...';
+	CALL update_father_name(id,new_father_name);
+RAISE NOTICE 'Updating date_of_birth...';
+	CALL update_date_of_birth(id,new_date_of_birth);
+RAISE NOTICE 'Updating sex...';
+	CALL update_sex(id,new_sex);
+ELSE
+	RAISE EXCEPTION 'Человека с таким номером паспорта не существует';
+END IF;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE ticket.delete_person(id VARCHAR(15))
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(id);
+
+IF EXISTS(SELECT 1 FROM person WHERE passport_id = id) THEN
+	RAISE NOTICE 'Также удалены все билеты, оформленные на этого человека';
+	CALL service.cascade_delete_ticket_from_person(id);
+	INSERT INTO ticket.person_garbage SELECT * FROM person WHERE passport_id = id;
+	DELETE FROM person WHERE passport_id = id;
+ELSE
+	RAISE EXCEPTION 'Человека с таким номером паспорта нет в базе данных!';
+END IF;
+END;
+$$;
+
+--other functions
+
+CREATE OR REPLACE FUNCTION service.count_company_profit(in VARCHAR(128)) RETURNS numeric as $$
+DECLARE
+profit NUMERIC(15,2);
+BEGIN
+
+PERFORM empty_null_check($1);
+
+SELECT INTO profit SUM(price_$)
+FROM ticket NATURAL INNER JOIN plane
+WHERE plane_registration_number = registration_number AND owner = $1;
+
+RETURN profit;
+END;
+$$ LANGUAGE plpgsql
+LEAKPROOF
+CALLED ON NULL INPUT
+STABLE;
+
+CREATE OR REPLACE FUNCTION fleet.show_all_old_planes_of_model(in VARCHAR(5),in int)
+RETURNS TABLE(
+	reg_number VARCHAR(10),
+	issue_year INT
+)
+AS $$
+BEGIN
+
+PERFORM empty_null_check($1);
+
+RETURN QUERY SELECT registration_number,year_of_issue FROM plane WHERE model = $1 AND year_of_issue < $2;
+
+END;
+$$ LANGUAGE plpgsql
+LEAKPROOF
+STABLE;
+
+--garbage procedures
+
+CREATE SCHEMA admin;
+
+CREATE OR REPLACE PROCEDURE admin.clear_plane_model_garbage()
+LANGUAGE plpgsql AS $$
+BEGIN
+TRUNCATE plane_model_garbage;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE admin.clear_plane_garbage()
+LANGUAGE plpgsql AS $$
+BEGIN
+TRUNCATE plane_garbage;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE admin.clear_flight_garbage()
+LANGUAGE plpgsql AS $$
+BEGIN
+TRUNCATE flight_garbage;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE admin.clear_ticket_garbage()
+LANGUAGE plpgsql AS $$
+BEGIN
+TRUNCATE ticket_garbage;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE admin.clear_person_garbage()
+LANGUAGE plpgsql AS $$
+BEGIN
+TRUNCATE person_garbage;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE admin.clear_all_garbage()
+LANGUAGE plpgsql AS $$
+BEGIN
+CALL fleet.clear_plane_model_garbage();
+CALL fleet.clear_plane_garbage();
+CALL flight.clear_flight_garbage();
+CALL ticket.clear_ticket_garbage();
+CALL ticket.clear_person_garbage();
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE admin.return_plane_model_record(code VARCHAR(5))
+LANGUAGE plpgsql AS $$
+BEGIN
+INSERT INTO fleet.plane_model SELECT * FROM plane_model_garbage WHERE icao_code = code;
+DELETE FROM plane_model_garbage WHERE icao_code = code;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE admin.return_plane_record(code VARCHAR(10))
+LANGUAGE plpgsql AS $$
+BEGIN
+INSERT INTO fleet.plane SELECT * FROM plane_garbage WHERE registration_number = code;
+DELETE FROM plane_garbage WHERE registration_number = code;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE admin.return_flight_record(code VARCHAR(16))
+LANGUAGE plpgsql AS $$
+BEGIN
+INSERT INTO flight.flight SELECT * FROM flight_garbage WHERE flight_id = code;
+DELETE FROM flight_garbage WHERE flight_id = code;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE admin.return_ticket_record(ticket_code VARCHAR(20))
+LANGUAGE plpgsql AS $$
+BEGIN
+INSERT INTO ticket.ticket SELECT * FROM ticket_garbage WHERE etkt = ticket_code;
+DELETE FROM ticket_garbage WHERE etkt = ticket_code;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE admin.return_person_record(id VARCHAR(15))
+LANGUAGE plpgsql AS $$
+BEGIN
+INSERT INTO ticket.person SELECT * FROM person_garbage WHERE passport_id = id;
+DELETE FROM person_garbage WHERE passport_id = id;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE admin.return_all_plane_model_record()
+LANGUAGE plpgsql AS $$
+BEGIN
+INSERT INTO fleet.plane_model SELECT * FROM plane_model_garbage;
+CALL clear_plane_model_garbage();
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE admin.return_all_plane_record()
+LANGUAGE plpgsql AS $$
+BEGIN
+INSERT INTO fleet.plane SELECT * FROM plane_garbage;
+CALL clear_plane_garbage();
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE admin.return_all_flight_record()
+LANGUAGE plpgsql AS $$
+BEGIN
+INSERT INTO flight.flight SELECT * FROM flight_garbage;
+CALL clear_flight_garbage();
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE admin.return_all_ticket_record()
+LANGUAGE plpgsql AS $$
+BEGIN
+INSERT INTO ticket.ticket SELECT * FROM ticket_garbage;
+CALL clear_ticket_garbage();
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE admin.return_all_person_record()
+LANGUAGE plpgsql AS $$
+BEGIN
+INSERT INTO ticket.person SELECT * FROM person_garbage;
+CALL clear_person_garbage();
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE admin.return_all()
+LANGUAGE plpgsql AS $$
+BEGIN
+CALL return_all_plane_model_record();
+CALL return_all_plane_record();
+CALL return_all_flight_record();
+CALL return_all_person_record();
+CALL return_all_ticket_record();
+END;
+$$;
+
+--view
+
+CREATE or REPLACE VIEW ticket.full_ticket_view AS
+SELECT * FROM ticket NATURAL INNER JOIN person;
+
+--users
+
+--psql -d airport_db -U sanya
+
+REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON DATABASE airport_db FROM PUBLIC;
+
+CREATE ROLE db_admin;
+GRANT CONNECT ON DATABASE airport_db TO db_admin;
+
+GRANT USAGE ON SCHEMA fleet,flight,ticket,service,admin TO db_admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA ticket,fleet,flight TO db_admin;
+GRANT TRUNCATE ON TABLE plane_model_garbage,plane_garbage,flight_garbage,ticket_garbage,person_garbage TO db_admin;
+ALTER ROLE db_admin SET search_path = ticket,fleet,flight,garbage,service,admin;
+
+ALTER ROLE db_admin createrole;
+
+
+--USER:
+
+CREATE USER sanya WITH ENCRYPTED PASSWORD '12345678';
+GRANT db_admin TO sanya;
+ALTER USER sanya SET search_path TO ticket,fleet,flight,garbage,service,admin;
+
+--psql -d airport_db -U fleet_manager
+
+CREATE ROLE fleet_manager;
+GRANT CONNECT ON DATABASE airport_db TO fleet_manager;
+
+GRANT USAGE ON SCHEMA fleet,flight,ticket,service TO fleet_manager;
+
+GRANT SELECT ON ALL TABLES IN SCHEMA fleet,flight,ticket TO fleet_manager;
+GRANT INSERT ON TABLE plane_model,plane_model_garbage,plane,plane_garbage,flight_garbage,
+ticket_garbage TO fleet_manager;
+GRANT UPDATE ON TABLE plane_model,plane TO fleet_manager;
+GRANT DELETE ON TABLE plane_model,plane,flight,ticket TO fleet_manager;
+
+ALTER ROLE fleet_manager SET search_path = fleet,flight,ticket,service;
+
+--USER:
+
+CREATE USER ivy WITH ENCRYPTED PASSWORD 'fly_me_to_the_moon';
+GRANT fleet_manager TO ivy;
+ALTER USER ivy SET search_path TO fleet,flight,ticket,service;
+
+--psql -d airport_db -U flight_manager
+
+CREATE ROLE flight_manager;
+GRANT CONNECT ON DATABASE airport_db TO flight_manager;
+
+GRANT USAGE ON SCHEMA fleet,flight,ticket,service TO flight_manager;
+
+GRANT SELECT ON ALL TABLES IN SCHEMA fleet,flight,ticket TO flight_manager;
+GRANT INSERT ON TABLE flight,flight_garbage,ticket_garbage TO flight_manager;
+GRANT UPDATE ON TABLE flight TO flight_manager;
+GRANT DELETE ON TABLE flight,ticket TO flight_manager;
+
+ALTER ROLE flight_manager SET search_path = fleet,flight,ticket,service;
+
+--USER:
+
+CREATE USER albert WITH ENCRYPTED PASSWORD 'and_let_me_play_among_the_stars';
+GRANT flight_manager TO albert;
+ALTER USER albert SET search_path TO fleet,flight,ticket,service;
+
+--psql -d airport_db -U ticket_manager
+
+CREATE ROLE ticket_manager;
+GRANT CONNECT ON DATABASE airport_db TO ticket_manager;
+
+GRANT USAGE ON SCHEMA fleet,flight,ticket,service TO ticket_manager;
+
+GRANT SELECT ON ALL TABLES IN SCHEMA fleet,flight,ticket TO ticket_manager;
+GRANT INSERT ON TABLE person,person_garbage,ticket,ticket_garbage TO ticket_manager;
+GRANT UPDATE ON TABLE person,ticket TO ticket_manager;
+GRANT DELETE ON TABLE person,ticket TO ticket_manager;
+
+ALTER ROLE ticket_manager SET search_path = fleet,flight,ticket,service;
+
+--USER:
+
+CREATE USER john WITH ENCRYPTED PASSWORD 'zd^D2j){^Dwlmo9|-/jU';
+GRANT ticket_manager TO john;
+ALTER USER john SET search_path TO fleet,flight,ticket,service;
+
+--psql -d airport_db -U read_only
+
+CREATE ROLE read_only;
+
+GRANT CONNECT ON DATABASE airport_db TO read_only;
+
+GRANT USAGE ON SCHEMA fleet,flight,ticket TO read_only;
+
+GRANT SELECT ON ALL TABLES IN SCHEMA fleet,flight,ticket TO read_only;
+ALTER ROLE read_only SET search_path = fleet,flight,ticket;
+
+--USER:
+
+CREATE USER balyaba WITH ENCRYPTED PASSWORD '1';
+GRANT read_only TO balyaba;
+ALTER USER balyaba SET search_path TO fleet,flight,ticket;
+
+CREATE USER kulema WITH ENCRYPTED PASSWORD '2';
+GRANT read_only TO kulema;
+ALTER USER kulema SET search_path TO fleet,flight,ticket;
+
+--inserts
+
+INSERT INTO plane_model(icao_code,model_name,plane_type,engine,crew,length_m,wingspan_m,height_m,interior_width_m,maximal_takeoff_weight_kg,capacity_of_passengers,cruising_speed_km_per_h,flight_distance_m,height_limit_m,takeoff_distance_m) VALUES
+('B788','Boeing 787 Dreamliner','Passenger','GEnx-1B / Trent 1000',2,56.7,60.0,17,5.49,228000,296,913,15200,13100,2600),
+('A388','Airbus A380','Passenger','Pratt & Whitney GP7200',2,72.73,79.75,24.45,6.54,560000,853,945,15400,13135,3000),
+('AH22','Antonov An-22 "Antey" Freighter','Cargo','ТВД НK- 12МА',7,57.3,64.4,12.535,4.4,225000,null,560,3100,6600,1460);
+
+INSERT INTO plane (registration_number,model,manufacturer,year_of_issue,owner,status) VALUES
+('JA825J','B788','The Boeing Company',2011,'Japan Airlines','Active'),
+('A6-EVG','A388','Airbus Group',2010,'Emirates','Active'),
+('RA-09320','AH22','Tashkent Mechanical Plant',1972,'Russian Air Forces','Inactive'),
+('RA-09321','AH22','Tashkent Mechanical Plant',1975,'Russian Air Forces','Inactive');
+
+
+INSERT INTO flight(flight_id,plane_registration_number,departure_point,arrival_point,departure_time_scheduled,departure_time_actual,arrival_time_scheduled,arrival_time_actual,terminal,gate,remark) VALUES
+('BT211','JA825J','Tokyo','Moscow','2015-03-04 11:23:00+09','2015-03-04 11:34:00+09','2015-03-04 19:25:00+09',null,'2','3A','Registration closed'),
+('MD343','JA825J','Moscow','Dubai','2015-03-05 10:00:00+09',null,'2015-03-05 14:25:00+09',null,'1','2C','Registration in proccess'),
+('V22','A6-EVG','London','Paris','2017-03-05 18:05:00+09',null,'2017-03-05 19:43:00+09',null,'','','Flight delayed'),
+('K345','JA825J','London','Oslo','2017-03-05 17:50:00+09',null,'2017-03-05 20:00:00+09',null,'','','Flight delayed'),
+('B12','A6-EVG','London','Rome','2017-04-05 8:00:00+09','2017-04-05 8:10:00+09','2017-04-05 11:00:00+09','2017-04-05 11:10:00+09','3','3A','Registration closed');
+
+INSERT INTO person (passport_id,last_name,first_name,father_name,date_of_birth,sex) VALUES
+('69 69 420420','Baranov','Aleksey','Mikhailovich','2000-08-07','MALE'),
+('13 14 151617','Bobova','Biba','','1802-01-01','FEMALE'),
+('34 66 456456','Pelikanov','Pelikan','Pelikanovich','1953-06-10','MALE'),
+('12 34 567890','Gulyaev','Stepan','Alekseevich','2002-10-30','MALE'),
+('23 22 45234356','Pablo','Escobar','Escobarovich','1949-12-01','MALE'),
+('15 65 332332','Pestrilova','Elizaveta','Aleksandrovna','1980-06-10','FEMALE'),
+('98 63 119091','Kuznetsova','Maria','Yurievna','1975-02-13','FEMALE'),
+('33 223 12414112','Chin','Chon','Chan Chi','1995-12-23','MALE');
+
+INSERT INTO ticket (etkt,plane_registration_number,flight_id,passport_id,class,price_$,seat) VALUES
+('724 3369250194','JA825J','BT211','69 69 420420','Business',1200,'2A'),
+('322 4353463324','JA825J','BT211','13 14 151617','Business',1200,'3A'),
+('322 1212343434','JA825J','BT211','13 14 151617','Business',1200,'3B'),
+('111 6584810112','JA825J','K345','12 34 567890','Economy',400,'26C'),
+('121 2332325432','A6-EVG','B12','98 63 119091','Economy',400,'26C'),
+('123 6580012333','A6-EVG','B12','12 34 567890','Economy',400,'26C');
+
+
