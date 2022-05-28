@@ -336,10 +336,9 @@ namespace Coursework_client
                         DataGrid_tasks.ItemsSource = dataset.Tables[0].DefaultView;
                     break;
                 case 1:
-                    var order = order_box.Text;
                     try
                         {
-                        dataset = worker.Query($"SELECT * FROM ticket.full_ticket_view WHERE seat LIKE '%A' ORDER BY {order}");
+                        dataset = worker.Query($"SELECT * FROM ticket.full_ticket_view WHERE seat LIKE '%A'");
                         }
                     catch (Npgsql.PostgresException exception)
                         {
@@ -361,12 +360,33 @@ namespace Coursework_client
                     break;
                 case 3:
                     dataset = worker.Query(
+                        "SELECT DISTINCT class,(SELECT etkt FROM ticket WHERE etkt = '724 3369250194') FROM ticket;"
+                    );
+                    if (dataset != null)
+                        DataGrid_tasks.ItemsSource = dataset.Tables[0].DefaultView;
+                    break;
+                case 4:
+                    dataset = worker.Query(
+                        "SELECT passport_id,last_name,first_name,father_name FROM(SELECT * FROM full_ticket_view) AS full_name;"
+                    );
+                    if (dataset != null)
+                        DataGrid_tasks.ItemsSource = dataset.Tables[0].DefaultView;
+                    break;
+                case 5:
+                    dataset = worker.Query(
+                        "SELECT * FROM ticket WHERE flight_id = (SELECT flight_id FROM flight WHERE flight_id = 'K345');"
+                    );
+                    if (dataset != null)
+                        DataGrid_tasks.ItemsSource = dataset.Tables[0].DefaultView;
+                    break;
+                case 6:
+                    dataset = worker.Query(
                         "(SELECT owner, SUM(price_$) FROM ticket NATURAL INNER JOIN plane " +
                         "WHERE plane_registration_number = registration_number GROUP BY owner HAVING count_company_profit(owner) > 300);");
                     if (dataset != null)
                         DataGrid_tasks.ItemsSource = dataset.Tables[0].DefaultView;
                     break;
-                case 4:
+                case 7:
                     dataset = worker.Query(
                         "SELECT * FROM full_ticket_view WHERE flight_id = ANY('{BT211,K345}');"
                     );
