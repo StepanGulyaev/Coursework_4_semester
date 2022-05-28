@@ -450,12 +450,15 @@
                                           Width="600"
                                           Padding="2"
                                           x:Name="task_combobox">
-                                    <ComboBoxItem Content="2(a).Запрос, содержажий CASE"
+                                    <ComboBoxItem Content="3(a).Запрос, содержажий CASE"
                                                   IsSelected="True"/>
-                                    <ComboBoxItem Content="2(b).Запрос к view с выбором ORDER"/>
-                                    <ComboBoxItem Content="2(c).Запрос, содержащий коррелированные и некоррелированные подзапросы"/>
-                                    <ComboBoxItem Content="2(d).Запрос, содержажий HAVING и скалярную функцию"/>
-                                    <ComboBoxItem Content="2(e).Запрос, содержажий ANY"/>
+                                    <ComboBoxItem Content="3(b).Запрос к view с выбором ORDER"/>
+                                    <ComboBoxItem Content="3(c).Запрос, содержащий коррелированные и некоррелированные подзапросы"/>
+                                    <ComboBoxItem Content="3(d).Кореллированный подазапрос 1"/>
+                                    <ComboBoxItem Content="3(d).Кореллированный подазапрос 2"/>
+                                    <ComboBoxItem Content="3(d).Кореллированный подазапрос 3"/>
+                                    <ComboBoxItem Content="3(e).Запрос, содержажий HAVING и скалярную функцию"/>
+                                    <ComboBoxItem Content="3(f).Запрос, содержажий ANY"/>
                                 </ComboBox>
                                 <Button x:Name="btn_task"
                                         Click="make_task"
@@ -467,37 +470,7 @@
                                         ToolTip="Выполнить"
                                         Grid.Column="0"
                                         Grid.Row="1"/>
-                                <TextBlock
-                                FontSize="18"
-                                Width="160"
-                                Margin="65 0"
-                                Text="2(b) ORDER BY"
-                                TextAlignment="Center"
-                                VerticalAlignment="Bottom"
-                                Style="{StaticResource MaterialDesignTextBlock}" Height="46">
-                                </TextBlock>
 
-                                <ComboBox
-                                Style="{StaticResource MaterialDesignFilledComboBox}"
-                                VerticalAlignment="Center"
-                                Margin="-30 0"
-                                FontSize="18"
-                                Width="160"
-                                Height="65"
-                                x:Name="order_box">
-                                    <ComboBoxItem Content="passport_id"/>
-                                    <ComboBoxItem Content="etkt"/>
-                                    <ComboBoxItem Content="plane_registration_number"/>
-                                    <ComboBoxItem Content="flight_id"/>
-                                    <ComboBoxItem Content="class"/>
-                                    <ComboBoxItem Content="price_$"/>
-                                    <ComboBoxItem Content="seat"/>
-                                    <ComboBoxItem Content="last_name"/>
-                                    <ComboBoxItem Content="first_name"/>
-                                    <ComboBoxItem Content="father_name"/>
-                                    <ComboBoxItem Content="date_of_birth"/>
-                                    <ComboBoxItem Content="sex"/>
-                                </ComboBox>
                             </StackPanel>
                         </StackPanel>
                     </TabItem>
