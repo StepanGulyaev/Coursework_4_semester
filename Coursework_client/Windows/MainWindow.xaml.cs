@@ -20,7 +20,7 @@ namespace Coursework_client
         private readonly PaletteHelper paletteHelper = new PaletteHelper();
 
         private User worker { get; init; }
-        private static readonly string[] btns =
+        private static readonly string[] work_btns =
         {
             "btn_ins_pln_md", "btn_upd_pln_md", "btn_del_pln_md",
             "btn_ins_pln", "btn_upd_pln", "btn_del_pln",
@@ -28,6 +28,29 @@ namespace Coursework_client
             "btn_ins_tck", "btn_upd_tck", "btn_del_tck",
             "btn_ins_pers", "btn_upd_pers", "btn_del_pers",
             "btn_upd_ft"
+        };
+
+        private static readonly string[] fleet_btn_exclude =
+            {
+            "btn_ins_fl", "btn_upd_fl", "btn_del_fl",
+            "btn_ins_tck", "btn_upd_tck", "btn_del_tck",
+            "btn_ins_pers", "btn_upd_pers", "btn_del_pers",
+            };
+
+        private static readonly string[] flight_btn_exclude =
+        {
+            "btn_ins_pln_md", "btn_upd_pln_md", "btn_del_pln_md",
+            "btn_ins_pln", "btn_upd_pln", "btn_del_pln",
+            "btn_ins_tck", "btn_upd_tck", "btn_del_tck",
+            "btn_ins_pers", "btn_upd_pers", "btn_del_pers",
+            "btn_upd_ft"
+        };
+
+        private static readonly string[] ticket_btn_exclude =
+        {
+            "btn_ins_pln_md", "btn_upd_pln_md", "btn_del_pln_md",
+            "btn_ins_pln", "btn_upd_pln", "btn_del_pln",
+            "btn_ins_fl", "btn_upd_fl", "btn_del_fl",
         };
 
         #endregion
@@ -40,9 +63,52 @@ namespace Coursework_client
             worker = new User(login, password);
             SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, ScrollBarVisibility.Disabled);
 
-            if (login.ToLower() == "user")
+            if (login.ToLower() == "balyaba" || login.ToLower() == "kulema")
                 {
-                foreach (string btn in btns)
+                foreach (string btn in work_btns)
+                    {
+                    var button = body.FindName(btn) as Control;
+                    if (button != null)
+                        {
+                        button.IsEnabled = false;
+                        button.ToolTip = "Действие невозможно для пользователя " + login;
+                        ToolTipService.SetShowOnDisabled(button, true);
+                        }
+                    }
+                }
+
+            if (login.ToLower() == "ivy")
+                {
+                foreach (string btn in fleet_btn_exclude)
+                    {
+                    var button = body.FindName(btn) as Control;
+                    if (button != null)
+                        {
+                        button.IsEnabled = false;
+                        button.ToolTip = "Действие невозможно для пользователя " + login;
+                        ToolTipService.SetShowOnDisabled(button, true);
+                        }
+                    }
+                }
+
+
+            if (login.ToLower() == "albert")
+                {
+                foreach (string btn in flight_btn_exclude)
+                    {
+                    var button = body.FindName(btn) as Control;
+                    if (button != null)
+                        {
+                        button.IsEnabled = false;
+                        button.ToolTip = "Действие невозможно для пользователя " + login;
+                        ToolTipService.SetShowOnDisabled(button, true);
+                        }
+                    }
+                }
+
+            if (login.ToLower() == "john")
+                {
+                foreach (string btn in ticket_btn_exclude)
                     {
                     var button = body.FindName(btn) as Control;
                     if (button != null)
@@ -88,6 +154,7 @@ namespace Coursework_client
                     mw = new UpdWindow(Tables.person, worker);
                     mw.Show();
                     break;
+
                 }
             }
 
@@ -179,12 +246,6 @@ namespace Coursework_client
                     mw = new UpdWindow(Tables.person, worker, index);
                     mw.Show();
                     break;
-                case "btn_upd_ft":
-                    selectedItems = DataGrid_full_ticket_view.SelectedItems;
-                    index = Convert.ToString((selectedItems[0] as DataRowView)[0]);
-                    mw = new UpdWindow(Tables.full_ticket_view, worker, index);
-                    mw.Show();
-                    break;
                 }
             }
 
@@ -207,7 +268,6 @@ namespace Coursework_client
                         try
                             {
                             var response = worker.Query($"CALL delete_model('{icao_code}');");
-                            //responseText_st.Text = response.Tables[0].Rows[0][0].ToString();
                             }
                         catch (Npgsql.PostgresException exception)
                             {
@@ -231,7 +291,6 @@ namespace Coursework_client
                         try
                             {
                             var response = worker.Query($"CALL delete_plane('{registration_number}');");
-                            //responseText_gr.Text = response.Tables[0].Rows[0][0].ToString();
                             }
                         catch (Npgsql.PostgresException exception)
                             {
@@ -255,7 +314,6 @@ namespace Coursework_client
                         try
                             {
                             var response = worker.Query($"CALL delete_flight('{flight_id}');");
-                            //responseText_mr.Text = response.Tables[0].Rows[0][0].ToString();
                             }
                         catch (Npgsql.PostgresException exception)
                             {
@@ -279,7 +337,6 @@ namespace Coursework_client
                         try
                             {
                             var response = worker.Query($"CALL delete_ticket('{etkt}')");
-                            //responseText_sj.Text = response.Tables[0].Rows[0][0].ToString();
                             }
                         catch (Npgsql.PostgresException exception)
                             {
@@ -303,7 +360,6 @@ namespace Coursework_client
                         try
                             {
                             var response = worker.Query($"CALL delete_person('{passport_id}');");
-                            //responseText_dp.Text = response.Tables[0].Rows[0][0].ToString();
                             }
                         catch (Npgsql.PostgresException exception)
                             {
@@ -427,12 +483,11 @@ namespace Coursework_client
                         DataGrid_pers.ItemsSource = dataset.Tables[0].DefaultView;
                     break;
                 case "btn_rel_full_ticket_view":
-                    dataset = worker.Query("SELECT * FROM full_ticket_view;");
+                    dataset = worker.Query("SELECT * FROM full_ticket_view ORDER BY etkt;");
                     if (dataset != null)
                         DataGrid_full_ticket_view.ItemsSource = dataset.Tables[0].DefaultView;
                     break;
                 }
-
             }
 
         private void update_all_db()

@@ -23,9 +23,9 @@ namespace Coursework_client
             new string[] { "ID самолета", "ID модели", "Производитель", "Год выпуска","Владелец","Статус"},
             new string[] { "ID рейса", "ID самолета", "Точка отправления", "Точка прибытия", "Время отправления(по расписанию)", "Время отправления", "Время прибытия(по расписанию)", "Время прибытия", 
                            "Терминал", "Выход", "Ремарка"},
-            new string[] { "ID Кафедры", "Наименование кафедры", "Заведующий кафедрой", "Аудитория кафедры" },
-            new string[] { "ID Предмета", "Наименование предмета" },
-            new string[] { "ID Оценки", "Наименование предмета", "Фамилия студента", "Имя студента", "Отчество студента", "Шифр группы", "Оценка", "Количество пропусков"}
+            new string[] { "ID билета", "ID самолета", "ID рейса", "ID паспорта","Класс","Цена($)","Место"},
+            new string[] { "ID паспорта", "Фамилия", "Имя", "Отчество","Дата рождения","Пол"},
+            new string[] { "ID билета","ID паспорта","ID самолета", "ID рейса","Класс","Цена($)","Место","Фамилия", "Имя", "Отчество","Дата рождения","Пол"},
             };
 
         private static readonly string[] plane_model_boxes =
@@ -48,6 +48,27 @@ namespace Coursework_client
             "fourth", "fifth", "sixth", "seventh",
             "eight", "ninth", "tenth"
             };
+
+        private static readonly string[] ticket_boxes =
+            {
+            "id_box", "first", "second", "third",
+            "fourth", "fifth", "sixth"
+            };
+
+        private static readonly string[] person_boxes =
+            {
+            "id_box", "first", "second", "third",
+            "fourth", "fifth"
+            };
+
+        private static readonly string[] full_ticket_view_boxes =
+            {
+            "id_box", "first", "second", "third",
+            "fourth", "fifth", "sixth", "seventh",
+            "eight", "ninth", "tenth","eleventh",
+            "twelwe"
+            };
+
 
 
         #endregion
@@ -213,6 +234,8 @@ namespace Coursework_client
 
                 case Tables.ticket:
 
+                    setHints_ticket();
+
                     id_box.MaxLength = 128;
                     first.MaxLength = 128;
                     second.MaxLength = 128;
@@ -245,6 +268,8 @@ namespace Coursework_client
                     break;
 
                 case Tables.person:
+
+                    setHints_person();
 
                     id_box.MaxLength = 128;
                     first.MaxLength = 128;
@@ -297,7 +322,7 @@ namespace Coursework_client
                     if (IsUpdating)
                         {
                         id_box.IsEnabled = false;
-                        DataSet full_ticket_view = Worker.Query($"SELECT passport_id, etkt, plane_registration_number,flight_id,class,price_$,seat,last_name" +
+                        DataSet full_ticket_view = Worker.Query($"SELECT etkt,passport_id,plane_registration_number,flight_id,class,price_$,seat,last_name," +
                         $"first_name,father_name, date_of_birth, sex FROM full_ticket_view " +
                         $"WHERE etkt = '{UpdatingId}';");
                         var ftv = full_ticket_view.Tables[0].Rows[0];
@@ -349,6 +374,45 @@ namespace Coursework_client
             {
             int i = 0;
             foreach (string input in flight_boxes)
+                {
+                var inp = grid.FindName(input) as Control;
+                if (inp != null && inp.Visibility != Visibility.Collapsed)
+                    {
+                    HintAssist.SetHint(inp, hints[(int)DataType][i++]);
+                    }
+                }
+            }
+
+        private void setHints_ticket()
+            {
+            int i = 0;
+            foreach (string input in ticket_boxes)
+                {
+                var inp = grid.FindName(input) as Control;
+                if (inp != null && inp.Visibility != Visibility.Collapsed)
+                    {
+                    HintAssist.SetHint(inp, hints[(int)DataType][i++]);
+                    }
+                }
+            }
+
+        private void setHints_person()
+            {
+            int i = 0;
+            foreach (string input in person_boxes)
+                {
+                var inp = grid.FindName(input) as Control;
+                if (inp != null && inp.Visibility != Visibility.Collapsed)
+                    {
+                    HintAssist.SetHint(inp, hints[(int)DataType][i++]);
+                    }
+                }
+            }
+
+        private void setHints_full_ticket_view()
+            {
+            int i = 0;
+            foreach (string input in full_ticket_view_boxes)
                 {
                 var inp = grid.FindName(input) as Control;
                 if (inp != null && inp.Visibility != Visibility.Collapsed)
@@ -713,6 +777,70 @@ namespace Coursework_client
                     fourth.Clear();
                     fifth.Clear();
                     break;
+
+            case Tables.full_ticket_view:
+
+                etkt = id_box.Text;
+                passport_code = first.Text;
+                plane_registration_number = second.Text;
+                flight_code = third.Text;
+                ticket_class = fourth.Text;
+                price = Convert.ToString(fifth.Text.Replace(',', '.'));
+                seat = sixth.Text;
+                last_name = seventh.Text;
+                first_name = eight.Text;
+                father_name = ninth.Text;
+                date_of_birth = tenth.Text;
+                sex = eleventh.Text;
+
+                if (string.IsNullOrWhiteSpace(etkt)
+                        || string.IsNullOrWhiteSpace(passport_code)
+                        || string.IsNullOrWhiteSpace(plane_registration_number)
+                        || string.IsNullOrWhiteSpace(flight_code)
+                        || string.IsNullOrWhiteSpace(ticket_class)
+                        || string.IsNullOrWhiteSpace(price)
+                        || string.IsNullOrWhiteSpace(seat)
+                        || string.IsNullOrWhiteSpace(last_name)
+                        || string.IsNullOrWhiteSpace(first_name)
+                        || string.IsNullOrWhiteSpace(date_of_birth)
+                        || string.IsNullOrWhiteSpace(sex))
+                        {
+                        responseText.Text = "Заполните необходимые поля!";
+                        return;
+                        }
+
+                if (!string.IsNullOrWhiteSpace(father_name))
+                    {
+                    father_name = $"'{father_name}'";
+                    }
+                else
+                    {
+                    father_name = "null";
+                    }
+
+                try
+                    {
+                    if (!IsUpdating)
+                        {
+                        var response = Worker.Query($"CALL insert_full_ticket_view('{etkt}','{passport_code}','{plane_registration_number}'," +
+                            $"{flight_code},'{ticket_class}',{price},'{seat}','{last_name}','{first_name}',{father_name},'{date_of_birth}','{sex}');");
+                        }
+                    else
+                        {
+                        var response = Worker.Query($"CALL update_full_ticket_view('{etkt}','{passport_code}','{plane_registration_number}'," +
+                            $"{flight_code},'{ticket_class}',{price},'{seat}','{last_name}','{first_name}',{father_name},'{date_of_birth}','{sex}');");
+                            StartCloseTimer();
+                        btn_confirm.IsEnabled = false;
+                        break;
+                        }
+                    }
+                catch (Npgsql.PostgresException exception)
+                    {
+                    responseText.Text = exception.Message;
+                    break;
+                    }
+
+                break;
                 }
             }
 

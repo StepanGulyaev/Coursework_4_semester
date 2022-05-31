@@ -60,18 +60,20 @@
                                 <Setter Property="Background" Value="LawnGreen"></Setter>
                             </Style>
                         </TabItem.Resources>
-                        <StackPanel Height="825"
-                                    VerticalAlignment="Top">
+                        <StackPanel Height="846"
+                                    VerticalAlignment="Center" Width="1358">
                             <DataGrid AutoGenerateColumns="True"
                                       ColumnWidth="*"
                                       Style="{StaticResource MaterialDesignDataGrid}"
                                       x:Name="DataGrid_pln_mdl"
                                       IsReadOnly="True"
-                                      Height="747" Width="1342"/>
+                                      Height="747" 
+                                      Width="1326"/>
                             <Border BorderBrush="#FFA2A2A2"
                                     BorderThickness="1.0 1.0 1.0 1.0"/>
                             <Grid Margin="10 20"
-                                  HorizontalAlignment="Left" Height="55"
+                                  HorizontalAlignment="Left" 
+                                  Height="55"
                                   VerticalAlignment="Bottom">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="200"/>
@@ -134,11 +136,13 @@
                                       Style="{StaticResource MaterialDesignDataGrid}"
                                       x:Name="DataGrid_pln"
                                       IsReadOnly="True"
-                                      Height="747" SelectionChanged="DataGrid_pln_SelectionChanged" Width="1328"/>
+                                      Height="747" SelectionChanged="DataGrid_pln_SelectionChanged" 
+                                      Width="1326"/>
                             <Border BorderBrush="#FFA2A2A2"
                                     BorderThickness="0.5 0.5 0.5 0.5"/>
                             <Grid Margin="10 20"
-                                  HorizontalAlignment="Left" Height="55"
+                                  HorizontalAlignment="Left" 
+                                  Height="55"
                                   VerticalAlignment="Bottom">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="200"/>
@@ -202,7 +206,8 @@
                                       Style="{StaticResource MaterialDesignDataGrid}"
                                       x:Name="DataGrid_fl"
                                       IsReadOnly="True"
-                                      Height="747"/>
+                                      Height="747"
+                                      Width="1326"/>
                             <Border BorderBrush="#FFA2A2A2"
                                     BorderThickness="0.5"/>
                             <Grid Margin="10 20"
@@ -269,7 +274,8 @@
                                       Style="{StaticResource MaterialDesignDataGrid}"
                                       x:Name="DataGrid_tck"
                                       IsReadOnly="True"
-                                      Height="747"/>
+                                      Height="747"
+                                      Width="1326"/>
                             <Border BorderBrush="#FFA2A2A2"
                                     BorderThickness="0.5"/>
                             <Grid Margin="10 20"
@@ -336,7 +342,8 @@
                                       Style="{StaticResource MaterialDesignDataGrid}"
                                       x:Name="DataGrid_pers"
                                       IsReadOnly="True"
-                                      Height="747"/>
+                                      Height="747"
+                                      Width="1326"/>
                             <Border BorderBrush="#FFA2A2A2"
                                     BorderThickness="0.5"/>
                             <Grid Margin="10 20"
@@ -404,7 +411,8 @@
                                       Style="{StaticResource MaterialDesignDataGrid}"
                                       x:Name="DataGrid_full_ticket_view"
                                       IsReadOnly="True"
-                                      Height="747"/>
+                                      Height="747"
+                                      Width="1326"/>
                             <Border BorderBrush="#FFA2A2A2"
                                     BorderThickness="0.5"/>
                             <Grid Margin="10 20"
@@ -412,6 +420,7 @@
                                   VerticalAlignment="Bottom">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="400"/>
                                 </Grid.ColumnDefinitions>
                                 <Button x:Name="btn_rel_full_ticket_view"
                                         Click="reload_db"
@@ -421,6 +430,12 @@
                                         Style="{StaticResource MaterialDesignFlatAccentBgButton}"
                                         ToolTip="Обновить данные"
                                         Grid.Column="0"/>
+                                <TextBlock Margin="0,12,0,12"
+                                        FontSize="12"
+                                        x:Name="responseText_full_ticket_view"
+                                        HorizontalAlignment="Center"
+                                        Grid.Column="4" Width="380"/>
+
                             </Grid>
                         </StackPanel>
                     </TabItem>
@@ -438,7 +453,8 @@
                                       Style="{StaticResource MaterialDesignDataGrid}"
                                       x:Name="DataGrid_tasks" 
                                       IsReadOnly="True"
-                                      Height="725"/>
+                                      Height="725"
+                                      Width="1326"/>
                             <Border BorderBrush="#FFA2A2A2" 
                                     BorderThickness="0.5"/>
                             <StackPanel Orientation="Horizontal"
