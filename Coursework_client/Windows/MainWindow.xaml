@@ -134,7 +134,7 @@
                                       Style="{StaticResource MaterialDesignDataGrid}"
                                       x:Name="DataGrid_pln"
                                       IsReadOnly="True"
-                                      Height="747" SelectionChanged="DataGrid_pln_SelectionChanged" Width="2336"/>
+                                      Height="747" SelectionChanged="DataGrid_pln_SelectionChanged" Width="1328"/>
                             <Border BorderBrush="#FFA2A2A2"
                                     BorderThickness="0.5 0.5 0.5 0.5"/>
                             <Grid Margin="10 20"

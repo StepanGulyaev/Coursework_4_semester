@@ -14,6 +14,44 @@ namespace Coursework_client
     public partial class UpdWindow : Window
         {
 
+        #region const
+
+        private static readonly string[][] hints =
+            {
+            new string[] { "ID модели", "Имя модели", "Тип самолета", "Двигатель", "Людей в экипаже","Длина самолета(м)","Размах крыльев(м)", "Высота(м)","Ширина салона(м)","Максимальная грузоподъемность(кг)",
+                           "Пассажироподъемность", "Крейсерская скорость(км/ч)","Дальность полета(м)", "Лимит высоты(м)","Взлетная дистанция(м)"},
+            new string[] { "ID самолета", "ID модели", "Производитель", "Год выпуска","Владелец","Статус"},
+            new string[] { "ID рейса", "ID самолета", "Точка отправления", "Точка прибытия", "Время отправления(по расписанию)", "Время отправления", "Время прибытия(по расписанию)", "Время прибытия", 
+                           "Терминал", "Выход", "Ремарка"},
+            new string[] { "ID Кафедры", "Наименование кафедры", "Заведующий кафедрой", "Аудитория кафедры" },
+            new string[] { "ID Предмета", "Наименование предмета" },
+            new string[] { "ID Оценки", "Наименование предмета", "Фамилия студента", "Имя студента", "Отчество студента", "Шифр группы", "Оценка", "Количество пропусков"}
+            };
+
+        private static readonly string[] plane_model_boxes =
+            {
+            "id_box", "first", "second", "third",
+            "fourth", "fifth", "sixth", "seventh",
+            "eight", "ninth", "tenth","eleventh",
+            "twelwe","thirteenth","fourteenth"
+            };
+
+        private static readonly string[] plane_boxes =
+            {
+            "id_box", "first", "second", "third",
+            "fourth", "fifth"
+            };
+
+        private static readonly string[] flight_boxes =
+            {
+            "id_box", "first", "second", "third",
+            "fourth", "fifth", "sixth", "seventh",
+            "eight", "ninth", "tenth"
+            };
+
+
+        #endregion
+
         #region fields
         private Tables DataType { get; init; }
         private bool IsUpdating { get; init; } = false;
@@ -54,13 +92,11 @@ namespace Coursework_client
         #region Configuring form inputs
         private void setInputs()
             {
-            if (IsUpdating)
-                {
-                id_box.Visibility = Visibility.Collapsed;
-                }
             switch (DataType)
                 {
                 case Tables.plane_model:
+
+                    setHints_plane_model();
 
                     id_box.MaxLength = 128;
                     first.MaxLength = 128;
@@ -80,6 +116,7 @@ namespace Coursework_client
 
                     if (IsUpdating)
                         {
+                        id_box.IsEnabled = false;
                         DataSet plane_model = Worker.Query($"SELECT * FROM plane_model WHERE icao_code= '{UpdatingId}';");
                         var model = plane_model.Tables[0].Rows[0];
                         id_box.Text = UpdatingId.ToString();
@@ -102,15 +139,27 @@ namespace Coursework_client
 
                 case Tables.plane:
 
+                    setHints_plane();
+
                     id_box.MaxLength = 128;
                     first.MaxLength = 128;
                     second.MaxLength = 128;
                     third.MaxLength = 128;
                     fourth.MaxLength = 128;
                     fifth.MaxLength = 128;
+                    sixth.Visibility = Visibility.Collapsed;
+                    seventh.Visibility = Visibility.Collapsed;
+                    eight.Visibility = Visibility.Collapsed;
+                    ninth.Visibility = Visibility.Collapsed;
+                    tenth.Visibility = Visibility.Collapsed;
+                    eleventh.Visibility = Visibility.Collapsed;
+                    twelwe.Visibility = Visibility.Collapsed;
+                    thirteenth.Visibility = Visibility.Collapsed;
+                    fourteenth.Visibility = Visibility.Collapsed;
 
                     if (IsUpdating)
                         {
+                        id_box.IsEnabled = false;
                         DataSet plane = Worker.Query($"SELECT * FROM plane WHERE registration_number= '{UpdatingId}';");
                         var pln = plane.Tables[0].Rows[0];
                         id_box.Text = UpdatingId.ToString();
@@ -125,6 +174,8 @@ namespace Coursework_client
 
                 case Tables.flight:
 
+                    setHints_flight();
+
                     id_box.MaxLength = 128;
                     first.MaxLength = 128;
                     second.MaxLength = 128;
@@ -136,9 +187,14 @@ namespace Coursework_client
                     eight.MaxLength = 128;
                     ninth.MaxLength = 128;
                     tenth.MaxLength = 128;
+                    eleventh.Visibility = Visibility.Collapsed;
+                    twelwe.Visibility = Visibility.Collapsed;
+                    thirteenth.Visibility = Visibility.Collapsed;
+                    fourteenth.Visibility = Visibility.Collapsed;
 
                     if (IsUpdating)
                         {
+                        id_box.IsEnabled = false;
                         DataSet flight = Worker.Query($"SELECT * FROM flight WHERE flight_id= '{UpdatingId}';");
                         var fl = flight.Tables[0].Rows[0];
                         id_box.Text = UpdatingId.ToString();
@@ -164,9 +220,18 @@ namespace Coursework_client
                     fourth.MaxLength = 128;
                     fifth.MaxLength = 128;
                     sixth.MaxLength = 128;
+                    seventh.Visibility = Visibility.Collapsed;
+                    eight.Visibility = Visibility.Collapsed;
+                    ninth.Visibility = Visibility.Collapsed;
+                    tenth.Visibility = Visibility.Collapsed;
+                    eleventh.Visibility = Visibility.Collapsed;
+                    twelwe.Visibility = Visibility.Collapsed;
+                    thirteenth.Visibility = Visibility.Collapsed;
+                    fourteenth.Visibility = Visibility.Collapsed;
 
                     if (IsUpdating)
                         {
+                        id_box.IsEnabled = false;
                         DataSet ticket = Worker.Query($"SELECT * FROM ticket WHERE etkt = '{UpdatingId}';");
                         var tck = ticket.Tables[0].Rows[0];
                         id_box.Text = UpdatingId.ToString();
@@ -187,9 +252,19 @@ namespace Coursework_client
                     third.MaxLength = 128;
                     fourth.MaxLength = 128;
                     fifth.MaxLength = 128;
+                    sixth.Visibility = Visibility.Collapsed;
+                    seventh.Visibility = Visibility.Collapsed;
+                    eight.Visibility = Visibility.Collapsed;
+                    ninth.Visibility = Visibility.Collapsed;
+                    tenth.Visibility = Visibility.Collapsed;
+                    eleventh.Visibility = Visibility.Collapsed;
+                    twelwe.Visibility = Visibility.Collapsed;
+                    thirteenth.Visibility = Visibility.Collapsed;
+                    fourteenth.Visibility = Visibility.Collapsed;
 
                     if (IsUpdating)
                         {
+                        id_box.IsEnabled = false;
                         DataSet person = Worker.Query($"SELECT * FROM person WHERE passport_id= '{UpdatingId}';");
                         var pers = person.Tables[0].Rows[0];
                         id_box.Text = UpdatingId.ToString();
@@ -215,9 +290,13 @@ namespace Coursework_client
                     ninth.MaxLength = 128;
                     tenth.MaxLength = 128;
                     eleventh.MaxLength = 128;
+                    twelwe.Visibility = Visibility.Collapsed;
+                    thirteenth.Visibility = Visibility.Collapsed;
+                    fourteenth.Visibility = Visibility.Collapsed;
 
                     if (IsUpdating)
                         {
+                        id_box.IsEnabled = false;
                         DataSet full_ticket_view = Worker.Query($"SELECT passport_id, etkt, plane_registration_number,flight_id,class,price_$,seat,last_name" +
                         $"first_name,father_name, date_of_birth, sex FROM full_ticket_view " +
                         $"WHERE etkt = '{UpdatingId}';");
@@ -237,6 +316,45 @@ namespace Coursework_client
                         }
 
                     break;
+                }
+            }
+
+        private void setHints_plane_model()
+            {
+            int i = 0;
+            foreach (string input in plane_model_boxes)
+                {
+                var inp = grid.FindName(input) as Control;
+                if (inp != null && inp.Visibility != Visibility.Collapsed)
+                    {
+                    HintAssist.SetHint(inp, hints[(int)DataType][i++]);
+                    }
+                }
+            }
+
+        private void setHints_plane()
+            {
+            int i = 0;
+            foreach (string input in plane_boxes)
+                {
+                var inp = grid.FindName(input) as Control;
+                if (inp != null && inp.Visibility != Visibility.Collapsed)
+                    {
+                    HintAssist.SetHint(inp, hints[(int)DataType][i++]);
+                    }
+                }
+            }
+
+        private void setHints_flight()
+            {
+            int i = 0;
+            foreach (string input in flight_boxes)
+                {
+                var inp = grid.FindName(input) as Control;
+                if (inp != null && inp.Visibility != Visibility.Collapsed)
+                    {
+                    HintAssist.SetHint(inp, hints[(int)DataType][i++]);
+                    }
                 }
             }
 
