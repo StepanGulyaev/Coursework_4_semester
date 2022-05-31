@@ -1,4 +1,3 @@
-
 CREATE DATABASE airport_db;
 
 CREATE SCHEMA fleet;
@@ -1686,7 +1685,159 @@ $$;
 --view
 
 CREATE or REPLACE VIEW ticket.full_ticket_view AS
-SELECT * FROM ticket NATURAL INNER JOIN person;
+SELECT etkt,passport_id,plane_registration_number,flight_id,class,price_$,
+seat,last_name,first_name,father_name,date_of_birth,sex FROM ticket NATURAL INNER JOIN person;
+
+CREATE OR REPLACE PROCEDURE ticket.insert_full_ticket_view(
+	n_ticket_id VARCHAR(20),
+    n_passport_id VARCHAR(15),
+    n_plane_registration_number VARCHAR(10),
+    n_flight_id VARCHAR(16),
+    n_class VARCHAR(16),
+    n_price_$ NUMERIC(15,2),
+    n_seat VARCHAR(5),
+	n_last_name VARCHAR(64),
+	n_first_name VARCHAR(64),
+	n_father_name VARCHAR(64),
+	n_date_of_birth DATE,
+	n_sex VARCHAR(6)
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(n_ticket_id);
+PERFORM empty_null_check(n_passport_id);
+PERFORM empty_null_check(n_plane_registration_number);
+PERFORM empty_null_check(n_flight_id);
+PERFORM empty_null_check(n_class);
+PERFORM empty_null_check(n_price_$);
+PERFORM empty_null_check(n_last_name);
+PERFORM empty_null_check(n_first_name);
+PERFORM empty_null_check(n_date_of_birth);
+PERFORM empty_null_check(n_sex);
+
+INSERT INTO ticket.full_ticket_view VALUES (n_ticket_id,n_passport_id,n_plane_registration_number,
+n_flight_id,n_class,n_price_$,n_seat,n_last_name,n_first_name,n_father_name,n_date_of_birth,n_sex);
+
+END;
+$$;
+
+CREATE RULE r_i_full_ticket_view_tck AS ON INSERT TO full_ticket_view
+DO INSTEAD
+INSERT INTO ticket VALUES(
+NEW.etkt,
+NEW.plane_registration_number,
+NEW.flight_id,
+NEW.passport_id,
+NEW.class,
+NEW.price_$,
+NEW.seat);
+
+CREATE RULE r_i_full_ticket_view_pers AS ON INSERT TO full_ticket_view
+DO INSTEAD
+INSERT INTO person VALUES(
+NEW.passport_id,
+NEW.last_name,
+NEW.first_name,
+NEW.father_name,
+NEW.date_of_birth,
+NEW.sex);
+
+
+CREATE OR REPLACE PROCEDURE ticket.update_full_ticket_view(
+	n_ticket_id VARCHAR(20),
+    	n_passport_id VARCHAR(15),
+    	n_plane_registration_number VARCHAR(10),
+    	n_flight_id VARCHAR(16),
+    	n_class VARCHAR(16),
+    	n_price_$ NUMERIC(15,2),
+    	n_seat VARCHAR(5),
+	n_last_name VARCHAR(64),
+	n_first_name VARCHAR(64),
+	n_father_name VARCHAR(64),
+	n_date_of_birth DATE,
+	n_sex VARCHAR(6)
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(n_ticket_id);
+
+IF (NOT EXISTS(SELECT * FROM full_ticket_view WHERE etkt = n_ticket_id)) then
+        RAISE EXCEPTION 'Билета с таким кодом не существует!';
+END IF;
+
+PERFORM empty_null_check(n_passport_id);
+PERFORM empty_null_check(n_plane_registration_number);
+PERFORM empty_null_check(n_flight_id);
+PERFORM empty_null_check(n_class);
+PERFORM empty_null_check(n_price_$);
+PERFORM empty_null_check(n_last_name);
+PERFORM empty_null_check(n_first_name);
+PERFORM empty_null_check(n_date_of_birth);
+PERFORM empty_null_check(n_sex);
+
+UPDATE full_ticket_view SET passport_id = n_passport_id WHERE etkt = n_ticket_id;
+UPDATE full_ticket_view SET plane_registration_number = n_plane_registration_number WHERE etkt = n_ticket_id;
+UPDATE full_ticket_view SET flight_id = n_flight_id WHERE etkt = n_ticket_id;
+UPDATE full_ticket_view SET class = n_class WHERE etkt = n_ticket_id;
+UPDATE full_ticket_view SET price_$ = n_price_$ WHERE etkt = n_ticket_id;
+UPDATE full_ticket_view SET seat = n_seat WHERE etkt = n_ticket_id;
+UPDATE full_ticket_view SET last_name = n_last_name WHERE etkt = n_ticket_id;
+UPDATE full_ticket_view SET first_name = n_first_name WHERE etkt = n_ticket_id;
+UPDATE full_ticket_view SET father_name = n_father_name WHERE etkt = n_ticket_id;
+UPDATE full_ticket_view SET date_of_birth = n_date_of_birth WHERE etkt = n_ticket_id;
+UPDATE full_ticket_view SET sex = n_sex WHERE etkt = n_ticket_id;
+END;
+$$;
+
+
+CREATE RULE r_u_full_ticket_view_tck AS ON UPDATE TO full_ticket_view
+DO INSTEAD
+UPDATE ticket SET
+plane_registration_number = NEW.plane_registration_number,
+flight_id = NEW.flight_id,
+class = NEW.class,
+price_$ = NEW.price_$,
+seat = NEW.seat WHERE (etkt = OLD.etkt);
+
+CREATE RULE r_u_full_ticket_view_pers AS ON UPDATE TO full_ticket_view
+DO INSTEAD
+UPDATE person SET
+passport_id = NEW.passport_id,
+last_name = NEW.last_name,
+first_name = NEW.first_name,
+father_name = NEW.father_name,
+date_of_birth = NEW.date_of_birth,
+sex = NEW.sex
+WHERE passport_id = (SELECT passport_id FROM ticket WHERE etkt = OLD.etkt);
+
+
+CREATE OR REPLACE PROCEDURE ticket.delete_full_ticket_view(
+etkt_to_del VARCHAR(20)
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+
+PERFORM empty_null_check(etkt_to_del);
+
+IF (NOT EXISTS(SELECT * FROM full_ticket_view WHERE etkt = n_ticket_id)) then
+        RAISE EXCEPTION 'Билета с таким кодом не существует!';
+END IF;
+
+	DELETE FROM full_ticket_view WHERE etkt = etkt_to_del;
+END;
+$$;
+
+CREATE RULE r_d_full_ticket_view_tck AS ON DELETE TO full_ticket_view
+DO INSTEAD
+DELETE FROM ticket WHERE etkt = OLD.etkt;
+
+CREATE RULE r_d_full_ticket_view_pers AS ON DELETE TO full_ticket_view
+DO INSTEAD
+DELETE FROM person WHERE passport_id = (SELECT passport_id FROM ticket WHERE etkt = OLD.etkt);
+
+
 
 --users
 
