@@ -1851,6 +1851,7 @@ GRANT CONNECT ON DATABASE airport_db TO db_admin;
 
 GRANT USAGE ON SCHEMA fleet,flight,ticket,service,admin TO db_admin;
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA ticket,fleet,flight TO db_admin;
+GRANT SELECT, INSERT, UPDATE,DELETE ON full_ticket_view TO db_admin;
 GRANT TRUNCATE ON TABLE plane_model_garbage,plane_garbage,flight_garbage,ticket_garbage,person_garbage TO db_admin;
 ALTER ROLE db_admin SET search_path = ticket,fleet,flight,garbage,service,admin;
 
@@ -1863,6 +1864,7 @@ CREATE USER sanya WITH ENCRYPTED PASSWORD '12345678';
 GRANT db_admin TO sanya;
 ALTER USER sanya SET search_path TO ticket,fleet,flight,garbage,service,admin;
 
+
 --psql -d airport_db -U fleet_manager
 
 CREATE ROLE fleet_manager;
@@ -1871,6 +1873,7 @@ GRANT CONNECT ON DATABASE airport_db TO fleet_manager;
 GRANT USAGE ON SCHEMA fleet,flight,ticket,service TO fleet_manager;
 
 GRANT SELECT ON ALL TABLES IN SCHEMA fleet,flight,ticket TO fleet_manager;
+GRANT SELECT ON full_ticket_view TO fleet_manager;
 GRANT INSERT ON TABLE plane_model,plane_model_garbage,plane,plane_garbage,flight_garbage,
 ticket_garbage TO fleet_manager;
 GRANT UPDATE ON TABLE plane_model,plane TO fleet_manager;
@@ -1892,6 +1895,7 @@ GRANT CONNECT ON DATABASE airport_db TO flight_manager;
 GRANT USAGE ON SCHEMA fleet,flight,ticket,service TO flight_manager;
 
 GRANT SELECT ON ALL TABLES IN SCHEMA fleet,flight,ticket TO flight_manager;
+GRANT SELECT ON full_ticket_view TO flight_manager;
 GRANT INSERT ON TABLE flight,flight_garbage,ticket_garbage TO flight_manager;
 GRANT UPDATE ON TABLE flight TO flight_manager;
 GRANT DELETE ON TABLE flight,ticket TO flight_manager;
@@ -1913,6 +1917,7 @@ GRANT USAGE ON SCHEMA fleet,flight,ticket,service TO ticket_manager;
 
 GRANT SELECT ON ALL TABLES IN SCHEMA fleet,flight,ticket TO ticket_manager;
 GRANT INSERT ON TABLE person,person_garbage,ticket,ticket_garbage TO ticket_manager;
+GRANT SELECT, INSERT, UPDATE,DELETE ON full_ticket_view TO ticket_manager;
 GRANT UPDATE ON TABLE person,ticket TO ticket_manager;
 GRANT DELETE ON TABLE person,ticket TO ticket_manager;
 
@@ -1933,6 +1938,7 @@ GRANT CONNECT ON DATABASE airport_db TO read_only;
 GRANT USAGE ON SCHEMA fleet,flight,ticket TO read_only;
 
 GRANT SELECT ON ALL TABLES IN SCHEMA fleet,flight,ticket TO read_only;
+GRANT SELECT ON full_ticket_view TO read_only;
 ALTER ROLE read_only SET search_path = fleet,flight,ticket;
 
 --USER:
