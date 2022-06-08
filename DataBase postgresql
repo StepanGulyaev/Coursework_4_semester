@@ -1812,33 +1812,6 @@ date_of_birth = NEW.date_of_birth,
 sex = NEW.sex
 WHERE passport_id = (SELECT passport_id FROM ticket WHERE etkt = OLD.etkt);
 
-
-CREATE OR REPLACE PROCEDURE ticket.delete_full_ticket_view(
-etkt_to_del VARCHAR(20)
-)
-LANGUAGE plpgsql AS $$
-BEGIN
-
-PERFORM empty_null_check(etkt_to_del);
-
-IF (NOT EXISTS(SELECT * FROM full_ticket_view WHERE etkt = n_ticket_id)) then
-        RAISE EXCEPTION 'Билета с таким кодом не существует!';
-END IF;
-
-	DELETE FROM full_ticket_view WHERE etkt = etkt_to_del;
-END;
-$$;
-
-CREATE RULE r_d_full_ticket_view_tck AS ON DELETE TO full_ticket_view
-DO INSTEAD
-DELETE FROM ticket WHERE etkt = OLD.etkt;
-
-CREATE RULE r_d_full_ticket_view_pers AS ON DELETE TO full_ticket_view
-DO INSTEAD
-DELETE FROM person WHERE passport_id = (SELECT passport_id FROM ticket WHERE etkt = OLD.etkt);
-
-
-
 --users
 
 --psql -d airport_db -U sanya
